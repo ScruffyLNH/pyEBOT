@@ -1,3 +1,9 @@
+### Google Services ###
+
+# Credentials file to access google drive
+creds.json
+
+
 ### Python Environment ###
 env/*
 

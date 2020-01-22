@@ -29,3 +29,9 @@ pprint(data)
 """
 
 sheet = client.open("pyEBOT test sheet").sheet1
+
+
+# Temporary test code.
+def getRow(rowNum):
+    data = sheet.row_values(rowNum)
+    return data

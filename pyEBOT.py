@@ -10,7 +10,6 @@ client.remove_command('help')
 def isAdmin(ctx):
     return ctx.author.id == 312381318891700224
 
-
 # Events
 @client.event
 async def on_ready():

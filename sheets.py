@@ -28,10 +28,20 @@ data = sheet.get_all_records()
 pprint(data)
 """
 
-sheet = client.open("pyEBOT test sheet").sheet1
+spreadSheet = client.open("pyEBOT test sheet")
+sheet = spreadSheet.worksheet('FormattedData')
 
 
-# Temporary test code.
+# Functions
+def getCell(rowIndex, colIndex):
+    cell = sheet.cell(rowIndex, colIndex)
+    return cell.value
+
+
+def setCell(rowIndex, colIndex, value):
+    sheet.update_cell(rowIndex, colIndex, value)
+
+
 def getRow(rowNum):
     data = sheet.row_values(rowNum)
     return data

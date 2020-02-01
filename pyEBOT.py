@@ -36,9 +36,12 @@ async def reload(ctx, extension):
 async def checkTest(ctx):
     await ctx.send('Yes, you are admin')
 
-
+# Load desired cogs
 for filename in os.listdir('./cogs'):
-    if not filename == 'devTools.py':
+    exclusionList = [
+        'messageWithoutCommand.py',
+        'asyncCog.py']
+    if filename not in exclusionList:
         if filename.endswith('.py'):
             client.load_extension(f'cogs.{filename[:-3]}')
 

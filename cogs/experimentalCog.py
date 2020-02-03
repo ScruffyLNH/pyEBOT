@@ -41,7 +41,7 @@ class ExperimentalCog(commands.Cog):
                     # Pass sliced list from current index to end of list
                     loop.run_until_complete(
                         self.populateIds(
-                            sheetData[sliceIndex:]))
+                            sheetData[sliceIndex:], i))
                 except Exception as e:
                     print(e)
                 finally:
@@ -49,13 +49,17 @@ class ExperimentalCog(commands.Cog):
                 break
 
     # Coroutines
-    async def populateIds(self, sheetData):
+    async def populateIds(self, sheetData, startIndex):
         for i in range(len(sheetData)):
             ed = cd.EventData('', sheetData[i])
             msg = ed.eventStringBuilder(sheetData[i])
             await self.channel.send(msg)
             msgId = self.channel.last_message_id
-            print(msgId)
+            ed.message = msg
+            ed.messageId = msgId
+            self.eventDataList.append(ed)
+            idIndex = (startIndex + i + 2, 7)  # Cell index for id in sheets
+            sheets.setCell(*idIndex, msgId)
 
     async def sendMessage(self, msg):
         await self.channel.send(msg)

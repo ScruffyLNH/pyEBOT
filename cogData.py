@@ -29,10 +29,5 @@ class EventData:
             f'Description: {rowData["Description"]}\n'
             f'Participants (in order of signup)\n {rowData["Participants"]}'
             f'{EventData.bottomString}\n'
-            # f"""
-            # {EventData.topString}
-            # **Event Name: {rowData['Event']}**
-            # Date and Time: {rowData['Date']}
-            # """
         )
         return outputString

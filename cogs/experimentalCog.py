@@ -11,7 +11,7 @@ class ExperimentalCog(commands.Cog):
         self.client = client
         # self.printer.start()
         self.checkSheetStatus.start()
-        self.updateCellIndices = (2, 17)  # TODO: refactor this bullshit
+        self.updateCellIndices = (2, 17)
         self.eventDataList = []
         # Obtain channel ID by using devTools (!load devTools !getChannelId)
         self.channelId = 665424669871964170

@@ -20,7 +20,10 @@ class ExperimentalCog(commands.Cog):
 
     # Code to be executed when cog is unloaded
     def cog_unload(self):
-        pass  # TODO: remeber to check if there is something that needs to be
+        # close loop
+        loop = asyncio.get_event_loop()
+        loop.close()
+        # TODO: remeber to check if there is something that needs to be
         # done upon unload
 
     # Functions
@@ -28,27 +31,56 @@ class ExperimentalCog(commands.Cog):
         self.channel = self.client.get_channel(channelId)
         print(f'Connecting to channel: {self.channel}')
 
-    def updateDiscord(self):
-        sheetData = sheets.getAll()
-        # Process sheet data
+    def checkMessageId(self, sheetData):
         for i in range(len(sheetData)):
-            # If a record is found without messageId an async loop will be
-            # triggered to populate all missing message ids
             if sheetData[i]['MessageId'] == '':
-                loop = asyncio.get_event_loop()
-                try:
-                    sliceIndex = i - len(sheetData)  # (Negative number)
-                    # Pass sliced list from current index to end of list
-                    loop.run_until_complete(
-                        self.populateIds(
-                            sheetData[sliceIndex:], i))
-                except Exception as e:
-                    print(e)
-                finally:
-                    loop.close
+                # Slice list from where the first empty messageId appears and
+                # pass the bottom slice to function for processing
+                sliceIndex = i - len(sheetData)
+                self.updateIds(sheetData[sliceIndex:], i)
                 break
 
+    def updateIds(self, eventData, index):
+        loop = asyncio.get_event_loop()
+        try:
+            # loop.run_until_complete(self.populateIds(eventData, index))
+            # TODO: check if this will create race condition issue.
+            loop.create_task(self.populateIds(eventData, index))
+        except Exception as e:
+            print(e)
+
+    def checkParticipants(self, edList, newRecords):
+        for ed in edList:
+            matchRecord = filter(
+                lambda record:
+                record['MessageId'] == ed.messageId,
+                newRecords)
+            if matchRecord:
+                if not matchRecord['Participants'] == ed.participants:
+                    ed.participants = matchRecord['Participants']
+                    ed.message = ed.eventStringBuilder(matchRecord)
+                    self.updateParticipants(ed)
+
+    def updateParticipants(self, record):
+        loop = asyncio.get_event_loop()
+        try:
+            loop.create_task(self.editMessage(record.msgId, record.msg))
+        except Exception as e:
+            print(e)
+
+    def updateDiscord(self):
+        sheetData = sheets.getAll()
+        # Check that all messages have ids. If not create message and populate.
+        self.checkMessageId(sheetData)
+
+        # Check if new participants have been added to any of the events.
+        # self.checkParticipants(self.eventDataList, sheetData)
+
     # Coroutines
+    async def editMessage(self, msgId, msg):
+        discordMsg = self.channel.fetch_message(self.msgId)
+        await discordMsg.edit(content=msg)
+
     async def populateIds(self, sheetData, startIndex):
         for i in range(len(sheetData)):
             ed = cd.EventData('', sheetData[i])
@@ -82,11 +114,6 @@ class ExperimentalCog(commands.Cog):
         await ctx.send(
             f'The values in row {rowNum} are {rowData}'
         )
-
-    @commands.command()
-    async def editMessage(self, ctx, messageId, *, newContent):
-        msg = await ctx.channel.fetch_message(messageId)
-        await msg.edit(content=newContent)
 
     # Check google sheets status
     @tasks.loop(seconds=2.5)

@@ -37,6 +37,11 @@ class DevTools(commands.Cog):
     async def clear(self, ctx, amount=1):
         await ctx.channel.purge(limit=(amount + 1))
 
+    @commands.command()
+    async def editMessage(self, ctx, messageId, *, newContent):
+        msg = await ctx.channel.fetch_message(messageId)
+        await msg.edit(content=newContent)
+
 
 def setup(client):
     client.add_cog(DevTools(client))

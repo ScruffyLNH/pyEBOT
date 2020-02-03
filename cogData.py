@@ -12,6 +12,7 @@ class EventData:
     def __init__(self, messageId, rowData):
         self.messageId = messageId
         self.message = self.eventStringBuilder(rowData)
+        self.participants = rowData['Participants']
 
     @classmethod
     def setTopString(cls, string):

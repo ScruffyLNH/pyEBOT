@@ -28,8 +28,8 @@ data = sheet.get_all_records()
 pprint(data)
 """
 
-spreadSheet = client.open("pyEBOT test sheet")
-sheet = spreadSheet.worksheet('FormattedData')
+spreadSheet = client.open("EVENTS")
+sheet = spreadSheet.worksheet('Discord Parsed Data')
 
 
 # Functions
@@ -43,20 +43,20 @@ def setCell(rowIndex, colIndex, value):
 
 
 def getAll():
-    # return sheet.get_all_records()
+    return sheet.get_all_records()
     # TODO: Commented out to save on sheets api call return.
     # now returns dummy data. Revert to normal once testing is complete
-    dummyList = []
-    for i in range(5):
-        data = {
-            'Event': f'event{i}',
-            'Date': f'date{i}',
-            'Time': f'time{i}',
-            'Description': f'description{i}',
-            'Participants': f'participants{i}',
-            'MessageId': f''}
-        dummyList.append(data)
-    return dummyList
+    # dummyList = []
+    # for i in range(5):
+    #     data = {
+    #         'Event': f'event{i}',
+    #         'Date': f'date{i}',
+    #         'Time': f'time{i}',
+    #         'Description': f'description{i}',
+    #         'Participants': f'participants{i}',
+    #         'MessageId': f''}
+    #     dummyList.append(data)
+    # return dummyList
 
 
 def getCol(index):

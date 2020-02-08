@@ -34,12 +34,20 @@ class Event:
         # TODO: Refactor this. Dry it up.
         if self.registrationDeadline is not None:
             # Format the deadline timedate object into a readable string.
+
+            # TODO: Add logic for expired signup, threat lvl if combat,
+            # additional information if present etc...
+
             dlStr = self.registrationDeadline.strftime("%A %B %#d, %H:%M UTC")
             msg = (
                 f'{EventData.topString}\n'
                 f'**Event Name: {sheetInfo["Event"]}**\n'
                 f'Registration Deadline: {dlStr}\n'
                 f'Date and Time: {dlStr}\n'
+                f'Location: {sheetInfo["Location"]}\n'
+                f'Description: {sheetInfo["Description"]}\n'
+                f'Duration: {sheetInfo["Duration"]}\n'
+                f'**ROLL CALL**: React with a :white_check_mark: to sign up.'
             )
         else:
             msg = (

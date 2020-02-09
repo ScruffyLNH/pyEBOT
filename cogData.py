@@ -16,6 +16,7 @@ class Event:
         self.eventId = 0
         self.sheetInfo = sheetInfo
         self.eventName = sheetInfo['Event']
+        # Convert date and time from string to datetime object and store.
         self.dateTime = datetime.strptime(
             sheetInfo['Date Time'], Event.shtDateTimeFormat)
         self.registrationDeadline = None
@@ -31,11 +32,45 @@ class Event:
         cls.bottomString = string
 
     def msgBuilder(self, sheetInfo):
-        # TODO: Refactor this. Dry it up.
+
+        stringBuffer = []
+        stringBuffer.append(f'**Event Name: {sheetInfo["Event"]}**')
+        
+        if self.registrationDeadline is not None:
+            dlStr = self.registrationDeadline.strftime("%A %B %#d, %H:%M UTC")
+            stringBuffer.append(f'Registration Deadline: {dlStr}')
+            
+        dlStr = self.registrationDeadline.strftime("%A %B %#d, %H:%M UTC")
+        stringBuffer.append(f'Date and Time: {dlStr}')
+        stringBuffer.append(f'Location: {sheetInfo["Location"]}')
+        stringBuffer.append(f'Description: {sheetInfo["Description"]}')
+        stringBuffer.append(f'Duration: {sheetInfo["Duration"]}')
+        stringBuffer.append(f'**ROLL CALL**: React with a :white_check_mark: to sign up.')
+        
+        if sheetInfo["Additional Info"] is not None:
+            stringBuffer.append(sheetInfo["Additional Info"])
+        
+        if self.registrationDeadline is not None:
+            if datetime.utcnow() > self.registrationDeadline:
+                stringBuffer.append(f'\n**Registration Closed**\n')
+                
+        # TODO: Add text for what channel to use. If custom it should
+        # read: A voice and text channel for this eventhas been opened in 
+        # #events group.
+                
+        if self.participants is not None:
+            stringBuffer.append('Participants: (In chronological order)')
+            # Get the name of every participant and put it in a list.
+            people = [p.name for p in self.participants]
+            # Add string with all the names separated with a comma to the buffer.
+            stringBuffer.append(f'{", ".join(people)}')
+                
+        msg = '\n'.join(stringBuffer)
+        
         if self.registrationDeadline is not None:
             # Format the deadline timedate object into a readable string.
 
-            # TODO: Add logic for expired signup, threat lvl if combat,
+            # TODO: Add logic for expired signup,
             # additional information if present etc...
 
             dlStr = self.registrationDeadline.strftime("%A %B %#d, %H:%M UTC")

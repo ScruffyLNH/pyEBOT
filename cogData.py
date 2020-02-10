@@ -35,38 +35,42 @@ class Event:
 
         stringBuffer = []
         stringBuffer.append(f'**Event Name: {sheetInfo["Event"]}**')
-        
+
         if self.registrationDeadline is not None:
             dlStr = self.registrationDeadline.strftime("%A %B %#d, %H:%M UTC")
             stringBuffer.append(f'Registration Deadline: {dlStr}')
-            
+
         dlStr = self.registrationDeadline.strftime("%A %B %#d, %H:%M UTC")
         stringBuffer.append(f'Date and Time: {dlStr}')
         stringBuffer.append(f'Location: {sheetInfo["Location"]}')
         stringBuffer.append(f'Description: {sheetInfo["Description"]}')
         stringBuffer.append(f'Duration: {sheetInfo["Duration"]}')
-        stringBuffer.append(f'**ROLL CALL**: React with a :white_check_mark: to sign up.')
-        
+        stringBuffer.append(
+            f'**ROLL CALL**: React with a :white_check_mark: to sign up.')
+
         if sheetInfo["Additional Info"] is not None:
             stringBuffer.append(sheetInfo["Additional Info"])
-        
+
+        # TODO: Put this in footer maybe?
         if self.registrationDeadline is not None:
             if datetime.utcnow() > self.registrationDeadline:
                 stringBuffer.append(f'\n**Registration Closed**\n')
-                
+
         # TODO: Add text for what channel to use. If custom it should
-        # read: A voice and text channel for this eventhas been opened in 
+        # read: A voice and text channel for this eventhas been opened in
         # #events group.
-                
+
+        # TODO: Put all this in an embed
+
         if self.participants is not None:
             stringBuffer.append('Participants: (In chronological order)')
             # Get the name of every participant and put it in a list.
             people = [p.name for p in self.participants]
-            # Add string with all the names separated with a comma to the buffer.
+            # Add string with all names separated with a comma to the buffer.
             stringBuffer.append(f'{", ".join(people)}')
-                
+
         msg = '\n'.join(stringBuffer)
-        
+
         if self.registrationDeadline is not None:
             # Format the deadline timedate object into a readable string.
 
@@ -91,10 +95,6 @@ class Event:
                 f'ENDTEST\n'
             )
         return msg
-
-
-
-
 
 
 class EventData:

@@ -96,6 +96,11 @@ class ExperimentalCog(commands.Cog):
     async def sendMessage(self, msg):
         await self.channel.send(msg)
         return self.channel.last_message_id
+        # TODO: Test this:
+        """
+        discordMsg = await self.channel.send(msg)
+        return discordMsg.id
+        """
 
     # Events
     @commands.Cog.listener()

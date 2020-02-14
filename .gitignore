@@ -3,6 +3,8 @@
 # Credentials file to access google drive
 creds.json
 
+### Resources ###
+Res/*
 
 ### Python Environment ###
 env/*

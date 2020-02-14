@@ -34,6 +34,10 @@ class DevTools(commands.Cog):
         await ctx.send(f'This channels ID is: {ctx.channel.id}')
 
     @commands.command()
+    async def getGuildId(self, ctx):
+        await ctx.send(f'Your guilds ID is: {ctx.guild.id}')
+
+    @commands.command()
     async def clear(self, ctx, amount=1):
         await ctx.channel.purge(limit=(amount + 1))
 

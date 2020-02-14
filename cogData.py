@@ -1,3 +1,4 @@
+import discord
 from datetime import datetime
 
 
@@ -13,15 +14,18 @@ class Event:
     shtDateTimeFormat = '%m/%d/%Y %H:%M:%S'
 
     def __init__(self, sheetInfo):
-        self.eventId = 0
+        self.id = int(0)  # Make doubbly shure this is an int.
+        self.message = None
+        self.eventResponsible = None
         self.sheetInfo = sheetInfo
         self.eventName = sheetInfo['Event']
         # Convert date and time from string to datetime object and store.
         self.dateTime = datetime.strptime(
             sheetInfo['Date Time'], Event.shtDateTimeFormat)
-        self.registrationDeadline = None
+        self.registrationDeadline = datetime.strptime(
+            sheetInfo['Deadline'], Event.shtDateTimeFormat)
         self.channels = None
-        self.participants = None
+        self.participants = []
 
     @classmethod
     def setTopString(cls, string):
@@ -31,16 +35,31 @@ class Event:
     def setBottomString(cls, string):
         cls.bottomString = string
 
-    def msgBuilder(self, sheetInfo):
+    def addParticipant(self, person):
+        exists = False
+        for participant in self.participants:
+            if participant.id == person.id:
+                exists = True
+
+        if not exists:
+            self.participants.append(person)
+
+    # TODO: Refactor this using list comprehension
+    def removeParticipant(self, person):
+        for i in range(len(self.participants)):
+            if self.participants[i].id == person.id:
+                del self.participants[i]
+
+    def postBuilder(self, sheetInfo):
 
         stringBuffer = []
-        stringBuffer.append(f'**Event Name: {sheetInfo["Event"]}**')
+        # stringBuffer.append(f'**Event Name: {sheetInfo["Event"]}**')
 
-        if self.registrationDeadline is not None:
+        if self.registrationDeadline != '':
             dlStr = self.registrationDeadline.strftime("%A %B %#d, %H:%M UTC")
             stringBuffer.append(f'Registration Deadline: {dlStr}')
 
-        dlStr = self.registrationDeadline.strftime("%A %B %#d, %H:%M UTC")
+        dlStr = self.dateTime.strftime("%A %B %#d, %H:%M UTC")
         stringBuffer.append(f'Date and Time: {dlStr}')
         stringBuffer.append(f'Location: {sheetInfo["Location"]}')
         stringBuffer.append(f'Description: {sheetInfo["Description"]}')
@@ -48,53 +67,56 @@ class Event:
         stringBuffer.append(
             f'**ROLL CALL**: React with a :white_check_mark: to sign up.')
 
-        if sheetInfo["Additional Info"] is not None:
+        if not sheetInfo["Additional Info"] == '':
             stringBuffer.append(sheetInfo["Additional Info"])
 
-        # TODO: Put this in footer maybe?
+        # Create a footer list that will be turned into a string for the embed
+        # footer.
+        footerBuffer = []
+
         if self.registrationDeadline is not None:
             if datetime.utcnow() > self.registrationDeadline:
-                stringBuffer.append(f'\n**Registration Closed**\n')
+                footerBuffer.append(f'\nRegistration has closed.\n')
 
         # TODO: Add text for what channel to use. If custom it should
-        # read: A voice and text channel for this eventhas been opened in
+        # read: A voice and text channel for this event has been opened in
         # #events group.
 
-        # TODO: Put all this in an embed
-
         if self.participants is not None:
-            stringBuffer.append('Participants: (In chronological order)')
+            footerBuffer.append('Participants: (In chronological order).')
             # Get the name of every participant and put it in a list.
             people = [p.name for p in self.participants]
             # Add string with all names separated with a comma to the buffer.
-            stringBuffer.append(f'{", ".join(people)}')
+            footerBuffer.append(f'{", ".join(people)}')
 
         msg = '\n'.join(stringBuffer)
 
-        if self.registrationDeadline is not None:
-            # Format the deadline timedate object into a readable string.
+        eventPost = discord.Embed(
+            title=f'{sheetInfo["Event"]}',
+            description=msg,
+            colour=0x6b90b5
+        )
+        # eventPost.set_author(
+        #     name='Event kicking off in x days!',
+        #     icon_url='https://i.imgur.com/1hXnSXN.jpg')
+        eventPost.set_thumbnail(
+            url='https://i.imgur.com/tB7S52z.jpeg'
+        )
+        eventPost.set_image(
+            url='https://thumbs.gfycat.com/HomelyRigidGreatdane-size_restricted.gif')
 
-            # TODO: Add logic for expired signup,
-            # additional information if present etc...
+        eventPost.set_footer(text=''.join(footerBuffer))
 
-            dlStr = self.registrationDeadline.strftime("%A %B %#d, %H:%M UTC")
-            msg = (
-                f'{EventData.topString}\n'
-                f'**Event Name: {sheetInfo["Event"]}**\n'
-                f'Registration Deadline: {dlStr}\n'
-                f'Date and Time: {dlStr}\n'
-                f'Location: {sheetInfo["Location"]}\n'
-                f'Description: {sheetInfo["Description"]}\n'
-                f'Duration: {sheetInfo["Duration"]}\n'
-                f'**ROLL CALL**: React with a :white_check_mark: to sign up.'
-            )
-        else:
-            msg = (
-                f'{EventData.topString}\n'
-                f'**Event Name: {sheetInfo["Event"]}**\n'
-                f'ENDTEST\n'
-            )
-        return msg
+        return eventPost
+
+
+class Person:
+
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
+        self.roles = None
+        self.Ships = None
 
 
 class EventData:

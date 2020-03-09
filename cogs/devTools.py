@@ -1,4 +1,5 @@
 import discord # noqa
+from constants import Constants
 from discord.ext import commands
 
 
@@ -36,6 +37,22 @@ class DevTools(commands.Cog):
     @commands.command()
     async def getGuildId(self, ctx):
         await ctx.send(f'Your guilds ID is: {ctx.guild.id}')
+
+    @commands.command()
+    async def getChannels(self, ctx):
+        channels = ''
+        guild = self.client.get_guild(Constants.GUILD_ID)
+        for channel in guild.channels:
+            channels += f'\n {channel.name}'
+            channels += f'\n\tid: {channel.id},\n\ttype: {channel.type}\n'
+        await ctx.send(f'Channels in this server:\n{channels}')
+
+    @commands.command()
+    async def getGuilds(self, ctx):
+        guilds = ''
+        for guild in self.client.guilds:
+            guilds += f'\n {guild.name}, id: {guild.id}'
+        await ctx.send(f'Connected guilds: {guilds}')
 
     @commands.command()
     async def clear(self, ctx, amount=1):

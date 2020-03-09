@@ -1,8 +1,12 @@
 import discord # noqa
 import sheets
+import gspread
 import asyncio
-import cogData as cd
+import pathlib
+import event
 from discord.ext import tasks, commands
+
+# TODO: sort input sheet list by date.
 
 
 class ExperimentalCog(commands.Cog):
@@ -11,29 +15,42 @@ class ExperimentalCog(commands.Cog):
         self.client = client
         # self.printer.start()
         self.checkSheetStatus.start()
-        self.updateCellIndices = (2, 17)
+        self.updateCellIndices = (2, 26)  # TODO: Refactor this nasty shite
         self.eventDataList = []
         # Obtain channel ID by using devTools (!load devTools !getChannelId)
-        self.channelId = 665424669871964170
+        self.channelId = 676567548568797266
         if self.client.is_ready():
             self.connectToChannel(self.channelId)
 
     # Code to be executed when cog is unloaded
     def cog_unload(self):
-        # close loop
-        loop = asyncio.get_event_loop()
-        loop.close()
+        # Cancel repeating tasks
+        self.checkSheetStatus.cancel()
         # TODO: remeber to check if there is something that needs to be
         # done upon unload
 
     # Functions
     def connectToChannel(self, channelId):
         self.channel = self.client.get_channel(channelId)
-        print(f'Connecting to channel: {self.channel}')
+        print(f'Connected to channel: {self.channel}')
 
+    # def checkParticipants(self, edList, newRecords):
+    #     for ed in edList:
+    #         matchRecord = filter(
+    #             lambda record:
+    #             record['MessageId'] == ed.messageId,
+    #             newRecords)
+    #         if matchRecord:
+    #             if not matchRecord['Participants'] == ed.participants:
+    #                 ed.participants = matchRecord['Participants']
+    #                 ed.message = ed.eventStringBuilder(matchRecord)
+    #                 self.updateParticipants(ed)
+
+    # TODO: This must be refactored to take into account that events might not
+    # be posted in order.
     def checkMessageId(self, sheetData):
         for i in range(len(sheetData)):
-            if sheetData[i]['MessageId'] == '':
+            if sheetData[i]['Id'] == '' or sheetData[i]['Id'] == 0:
                 # Slice list from where the first empty messageId appears and
                 # pass the bottom slice to function for processing
                 sliceIndex = i - len(sheetData)
@@ -43,23 +60,10 @@ class ExperimentalCog(commands.Cog):
     def updateIds(self, eventData, index):
         loop = asyncio.get_event_loop()
         try:
-            # loop.run_until_complete(self.populateIds(eventData, index))
             # TODO: check if this will create race condition issue.
             loop.create_task(self.populateIds(eventData, index))
         except Exception as e:
             print(e)
-
-    def checkParticipants(self, edList, newRecords):
-        for ed in edList:
-            matchRecord = filter(
-                lambda record:
-                record['MessageId'] == ed.messageId,
-                newRecords)
-            if matchRecord:
-                if not matchRecord['Participants'] == ed.participants:
-                    ed.participants = matchRecord['Participants']
-                    ed.message = ed.eventStringBuilder(matchRecord)
-                    self.updateParticipants(ed)
 
     def updateParticipants(self, record):
         loop = asyncio.get_event_loop()
@@ -83,24 +87,62 @@ class ExperimentalCog(commands.Cog):
 
     async def populateIds(self, sheetData, startIndex):
         for i in range(len(sheetData)):
-            ed = cd.EventData('', sheetData[i])
-            msg = ed.eventStringBuilder(sheetData[i])
-            await self.channel.send(msg)
-            msgId = self.channel.last_message_id
+            ed = event.Event(sheetData[i])
+            post = ed.postBuilder(sheetData[i])
+            msg = await self.channel.send(embed=post)
+            # msgId = self.channel.last_message_id
             ed.message = msg
-            ed.messageId = msgId
             self.eventDataList.append(ed)
-            idIndex = (startIndex + i + 2, 7)  # Cell index for id in sheets
-            sheets.setCell(*idIndex, msgId)
+            # idIndex = (startIndex + i + 2, 7)  # Cell index for id in sheets
+            # sheets.setCell(*idIndex, msgId)
+
+    # Post an embed. To add images send a string with path to the relevant
+    # keyword arguments.
+    async def sendEmbed(
+        self,
+        embed,
+        image='',
+        thumbnail='',
+        icon='',
+        message=None,
+        edit=False
+    ):
+
+        files = []
+        # TODO: Refacor this (wet code.)
+        if not thumbnail == '':
+            tnStrings = thumbnail.split('/')
+            tnFileName = tnStrings[-1]
+            path = pathlib.Path(thumbnail)
+            tnFile = discord.File(path, tnFileName)
+            embed.set_thumbnail(url=f'attachment://{tnFileName}')
+            files.append(tnFile)
+
+        if not image == '':
+            imStrings = image.split('/')
+            imFileName = imStrings[-1]
+            imPath = pathlib.Path(image)
+            imFile = discord.File(imPath, imFileName)
+            embed.set_image(url=f'attachment://{imFileName}')
+            files.append(imFile)
+
+        user = self.client.get_user(312381318891700224)
+        embed.set_author(
+            name='Event kicking off in x days!',
+            icon_url=f'{user.avatar_url}'
+        )
+        if edit:
+            embed.set_image(
+                url='https://thumbs.gfycat.com/HomelyRigidGreatdane-size_restricted.gif'
+            )
+            await message.edit(embed=embed)
+        else:
+            msg = await self.channel.send(files=files, embed=embed)
+            self.client.events.append(msg)
 
     async def sendMessage(self, msg):
-        await self.channel.send(msg)
-        return self.channel.last_message_id
-        # TODO: Test this:
-        """
         discordMsg = await self.channel.send(msg)
         return discordMsg.id
-        """
 
     # Events
     @commands.Cog.listener()
@@ -113,6 +155,50 @@ class ExperimentalCog(commands.Cog):
         print(f'Message ID is: {messageId}')
 
     # Commands
+    # TODO: remove the testing commands
+    @commands.command()
+    async def testEmbed(self, ctx):
+        sheetInfo = sheets.getAll()
+        ed = event.Event(sheetInfo[2])
+        embed = ed.postBuilder(sheetInfo[2])
+        loop = asyncio.get_event_loop()
+        try:
+            loop.create_task(self.sendEmbed(
+                embed,
+                thumbnail='Res/FR17Logo.png',
+                image='Res/Moonbreaker.jpg'))
+        except Exception as e:
+            print(e)
+
+    @commands.command()
+    async def testEmbedNoImage(self, ctx):
+        sheetInfo = sheets.getAll()
+        ed = event.Event(sheetInfo[2])
+        embed = ed.postBuilder(sheetInfo[2])
+        loop = asyncio.get_event_loop()
+        try:
+            loop.create_task(self.sendEmbed(
+                embed,
+                thumbnail='Res/FR17Logo.png'))
+        except Exception as e:
+            print(e)
+
+    @commands.command()
+    async def editEmbed(self, ctx):
+        sheetInfo = sheets.getAll()
+        ed = event.Event(sheetInfo[2])
+        embed = ed.postBuilder(sheetInfo[2])
+        loop = asyncio.get_event_loop()
+        try:
+            loop.create_task(self.sendEmbed(
+                embed,
+                thumbnail='Res/FR17Logo.png',
+                image='Res/Moonbreaker.jpg',
+                message=self.client.events[-1],
+                edit=True))
+        except Exception as e:
+            print(e)
+
     @commands.command()
     async def printSheetRow(self, ctx, rowNum):
         rowData = sheets.getRow(rowNum)
@@ -121,16 +207,41 @@ class ExperimentalCog(commands.Cog):
         )
 
     # Check google sheets status
-    @tasks.loop(seconds=2.5)
+    @tasks.loop(seconds=5)
     async def checkSheetStatus(self):
         await self.client.wait_until_ready()
         # Status is either 0,1,2 depending on the state of google sheet
-        status = int(sheets.getCell(*self.updateCellIndices))
+
+        # Attempt to read cell with gspread.
+        for attempt in range(5):
+            try:
+                status = int(sheets.getCell(*self.updateCellIndices))
+            except gspread.exceptions.APIError as e:
+                print(e)
+                sheets.refreshAuth()
+            else:
+                break
+
+        # try:
+        #     status = int(sheets.getCell(*self.updateCellIndices))
+        # except gspread.exceptions.APIError as e:
+        #     print(e)
+        #     sheets.login()
+        # finally:
+        #     status = 0
+        # TODO: Refactor this. The gspread call will eventually fail. Have to
+        # do an event trigger somehow.
 
         if (status == 2):
             self.updateDiscord()
             status = 0
             sheets.setCell(*self.updateCellIndices, status)
+
+    @checkSheetStatus.before_loop
+    async def before_checkSheetStatus(self):
+        print('Sheet-checking loop is waiting for client to be ready.')
+        await self.client.wait_until_ready()
+        print('Sheet-checking loop has started.')
 
 
 def setup(client):

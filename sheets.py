@@ -66,3 +66,11 @@ def getCol(index):
 def getRow(rowNum):
     data = sheet.row_values(rowNum)
     return data
+
+
+# This must run periodically to avoid loosing authentication. Timeout is 1hr.
+def refreshAuth():
+    client.login()
+
+# TODO: Encapsulate this code within a class to make it compatible with sphinx
+# documentation.

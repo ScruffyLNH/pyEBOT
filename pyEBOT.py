@@ -19,7 +19,11 @@ if __name__ == "__main__":
     client.remove_command('help')
 
     # TODO: Deserialize orgEvent data.
+    # Create empty list that will hold all the event objects
     client.orgEvents = []
+    # Create empty list that will hold ids of messages that event-bot has moved
+    # from the main event channel.
+    client.managedMessages = []
     # client.orgEvents = loadData('eventData.pkl')
     # if client.orgEvents is None:
     #     client.orgEvents = []

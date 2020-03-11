@@ -48,6 +48,17 @@ class DevTools(commands.Cog):
         await ctx.send(f'Channels in this server:\n{channels}')
 
     @commands.command()
+    async def getRoles(self, ctx):
+        serverRoles = ctx.guild.roles
+        roles = ''
+        for role in serverRoles:
+            roles += f'\n {role.name}'
+            roles += f'\n\tid: {role.id},\n\tPosition: {role.position}\n'
+        roles = roles.translate(str.maketrans('', '', '@'))
+        await ctx.send(f'Roles on this server:\n{roles}')
+
+
+    @commands.command()
     async def getGuilds(self, ctx):
         guilds = ''
         for guild in self.client.guilds:

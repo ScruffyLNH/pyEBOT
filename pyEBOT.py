@@ -1,6 +1,7 @@
 import discord # noqa
 import os
 import event
+import managedMessages
 from utility import loadData
 from constants import Constants
 from discord.ext import commands
@@ -21,9 +22,8 @@ if __name__ == "__main__":
     # TODO: Deserialize orgEvent data.
     # Create empty list that will hold all the event objects
     client.orgEvents = []
-    # Create empty list that will hold ids of messages that event-bot has moved
-    # from the main event channel.
-    client.managedMessages = []
+    # Instanciate managedMessages class and store in client.
+    client.managedMessages = managedMessages.ManagedMessages()
     # client.orgEvents = loadData('eventData.pkl')
     # if client.orgEvents is None:
     #     client.orgEvents = []

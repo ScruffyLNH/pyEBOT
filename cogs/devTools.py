@@ -74,6 +74,9 @@ class DevTools(commands.Cog):
         msg = await ctx.channel.fetch_message(messageId)
         await msg.edit(content=newContent)
 
+    def cog_check(self, ctx):
+        return ctx.author.id == Constants.ADMIN_ID
+
 
 def setup(client):
     client.add_cog(DevTools(client))

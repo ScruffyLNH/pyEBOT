@@ -337,7 +337,7 @@ class EventCog(commands.Cog):
     async def before_checkSheet(self):
         """Make sure client is ready before checkSheet loop runs.
         """
-        print('Sheet-checking loop is waiting for client to be ready.')
+        print('Sheet-checking loop is waiting for client to get ready.')
         await self.client.wait_until_ready()
         await asyncio.sleep(0.5)
         print('Sheet-checking loop has started.')

@@ -18,6 +18,9 @@ class Constants:
     # ID of the main channel in discord.
     MAIN_CHANNEL_ID = 676567548568797266  # TODO: This must be updated to the correct channel.
 
+    # ID of the events category channel.
+    EVENTS_CAT_CHANNEL_ID = 676474908603318272
+
     # Discord ID of the bots admin.
     ADMIN_ID = 312381318891700224
 

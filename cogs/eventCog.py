@@ -236,15 +236,72 @@ class EventCog(commands.Cog):
 
         return roles
 
+    async def createChannels(self, eventData, roles):
+        # TODO: Refactor this mess
+        if eventData['Channel'] != '':
+            txtChannelName = '📌' + eventData['Channel'] + '-info'
+            voiceChannelName = eventData['Channel']
+        else:
+            txtChannelName = '📌' + eventData['Event'] + '-info'
+            voiceChannelName = eventData['Event']
+
+        categoryChannel = self.client.get_channel(
+            Constants.EVENTS_CAT_CHANNEL_ID
+        )
+        guild = self.client.get_guild(Constants.GUILD_ID)
+        if roles:
+            participantRole = guild.get_role(roles[0].id)
+            viewerRole = guild.get_role(roles[1].id)
+            txtOverwrites = {
+                guild.default_role: discord.PermissionOverwrite(
+                    read_messages=False
+                    ),
+                guild.me: discord.PermissionOverwrite(
+                    read_messages=True,
+                    send_messages=True
+                    ),
+                participantRole: discord.PermissionOverwrite(
+                    read_messages=True,
+                    send_messages=True
+                    ),
+                viewerRole: discord.PermissionOverwrite(
+                    read_messages=True,
+                    send_messages=True
+                    )
+            }
+            voiceOverwrites = {
+                guild.default_role: discord.PermissionOverwrite(
+                    read_messages=False  # TODO: Upgrade discord.py to 1.3 and use view_channel
+                ),
+                participantRole: discord.PermissionOverwrite(
+                    read_messages=True
+                ),
+                viewerRole: discord.PermissionOverwrite(
+                    read_messages=False
+                )
+            }
+            channels = []
+            txt_chnl = await categoryChannel.create_text_channel(
+                txtChannelName,
+                overwrites=txtOverwrites
+            )
+            voice_chnl = await categoryChannel.create_voice_channel(
+                voiceChannelName,
+                overwrites=voiceOverwrites
+            )
+            channels.append(txt_chnl)
+            channels.append(voice_chnl)
+            return channels
+
     async def processData(self, eventData, keys):
 
         # Get the event organizer
         organizer = self.getEventOrganizer(eventData)
 
         # Create roles for event
-        roles = self.createRoles(eventData)
+        roles = await self.createRoles(eventData)
 
-        await roles
+        channels = await self.createChannels(eventData, roles)
 
         # Instanciate event object.
         eventInstance = self.instanciateEvent(
@@ -255,9 +312,7 @@ class EventCog(commands.Cog):
 
         # Assign ID by posting message to discord and saving the returned ID
         # in the event object.
-        registeredEvent = self.assignId(eventInstance)
-
-        await registeredEvent
+        registeredEvent = await self.assignId(eventInstance)
 
         # Write IDs back to google sheets.
         self.writeIdToSheets(eventInstance)

@@ -195,6 +195,9 @@ class EventCog(commands.Cog):
         msg = await self.channel.send(embed=embed)
         print(f'New event added, ID is: {msg.id}')
 
+        # Add registration emoji.
+        await msg.add_reaction('✅')
+
         # Set the id of the event to the message id in discord.
         orgEvent.id = msg.id
 

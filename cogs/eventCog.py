@@ -314,6 +314,25 @@ class EventCog(commands.Cog):
         # in the event object.
         registeredEvent = await self.assignId(eventInstance)
 
+        # If event contains private information, post the uncensored embed in
+        # the newly opened channel.
+        # TODO: Make sure that private channel embed is also updated when the
+        # main embed is updated.
+        for channel in discordChannels:
+            if channel.type == discord.ChannelType.text:
+                user = self.client.get_user(registeredEvent.organizer.id)
+                embed = registeredEvent.makeEmbed(
+                    False,
+                    user,
+                    includeAuthor=False,
+                    includeFooter=False,
+                    includePreamble=False,
+                    includeRollCall=False,
+                    includeVoiceChnl=False
+                )
+                privateMsg = await channel.send(embed=embed)
+                # TODO: Figure out how to store privateMsg.
+
         # Write IDs back to google sheets.
         self.writeIdToSheets(eventInstance)
 

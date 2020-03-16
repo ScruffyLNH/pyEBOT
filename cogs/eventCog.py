@@ -34,7 +34,7 @@ class EventCog(commands.Cog):
         self.channel = self.client.get_channel(channelId)
         print(f'Connected to channel: {self.channel}')
 
-    def updateDiscord(self):
+    async def updateDiscord(self):
         # TODO: Document this function.
 
         sheetData = sheets.getAll()
@@ -48,7 +48,7 @@ class EventCog(commands.Cog):
         # Process each event by instanciation event objects and posting
         # event messages to discord.
         for eventData in parsedData:
-            self.client.loop.create_task(
+            await self.client.loop.create_task(
                 self.processData(eventData, sheetKeys)
             )
 
@@ -384,7 +384,9 @@ class EventCog(commands.Cog):
                 break
 
         if status == 2:
+            self.client.loop.create_task(
             self.updateDiscord()
+            )
             status = 0
             sheets.setCell(*Constants.CELL_INDEX, status)
 

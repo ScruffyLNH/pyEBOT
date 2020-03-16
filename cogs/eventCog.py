@@ -239,10 +239,10 @@ class EventCog(commands.Cog):
     async def createChannels(self, eventData, roles):
         # TODO: Refactor this mess
         if eventData['Channel'] != '':
-            txtChannelName = '📌' + eventData['Channel'] + '-info'
+            txtChannelName = eventData['Channel'] + '-info'
             voiceChannelName = eventData['Channel']
         else:
-            txtChannelName = '📌' + eventData['Event'] + '-info'
+            txtChannelName = eventData['Event'] + '-info'
             voiceChannelName = eventData['Event']
 
         categoryChannel = self.client.get_channel(

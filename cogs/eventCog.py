@@ -304,11 +304,9 @@ class EventCog(commands.Cog):
         channels = await self.createChannels(eventData, roles)
 
         # Instanciate event object.
-        eventInstance = self.instanciateEvent(
-            eventData,
-            keys,
-            organizer,
-            roles)
+        eventInstance = event.Event(
+            None, eventData, keys, organizer, roles, channels, []
+        )
 
         # Assign ID by posting message to discord and saving the returned ID
         # in the event object.

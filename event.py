@@ -49,7 +49,18 @@ class Event:
             if self.participants[i].id == person.id:
                 del self.participants[i]
 
-    def makeEmbed(self, censored, user):
+    def makeEmbed(
+        self,
+        censored,
+        user,
+        includeAuthor=True,
+        includePreamble=True,
+        includeBody=True,
+        includeVoiceChnl=True,
+        includeRollCall=True,
+        includeFooter=True,
+        includeImage=True
+    ):
         # TODO: Document this method. **censored TRUE/FALSE**
 
         # TODO: Add Type: Open event, anyone may join./
@@ -59,10 +70,6 @@ class Event:
         # This is a private event, and may contain classified information.
         # to view the classified info, sign up for the event and check the
         # event channel that will open.
-
-        # TODO: Check if key contains private information. If so, instead of
-        # normal message print:
-        # Classified, check #channel for more info. (Requires signup)
 
         # Override private keys if censored argument is not True
         if censored:
@@ -84,14 +91,24 @@ class Event:
                 '\n'
             )
 
+        # If separate channels has been created for event a string explaining
+        # this will be added to the preamble
+        if (self.data['Members Only'].upper() == 'YES' or
+                True in self.privateIndication.values()):
+
+            preambleBuffer.append(
+                ':hash: Separate channels for this event has been created. '
+                'To access these channels, sign up for the event.'
+                '\n'
+            )
+
         # If any key holds private data, users are notified that event has
         # classified data and how to access that data.
         if True in self.privateIndication.values():
             preambleBuffer.append(
                 ':zipper_mouth: '
                 'To view classified information, sign up is required. '
-                'Once signed up, a new channel group will open. Full '
-                'description will be disclosed in event-groups discussion '
+                'Full description will be disclosed in this events text '
                 'channel.'
                 '\n'
             )
@@ -142,12 +159,22 @@ class Event:
             descriptionString = self.data['Description']
         bodyBuffer.append(f':newspaper: Description: \n{descriptionString}\n')
 
+        # Check if event organizer is classified.
+        if privateIndication['Organizer']:
+            organizerString = privateString
+        elif self.data['Organizer'] != '':
+            organizerString = self.data['Organizer']
+        else:
+            organizerString = None
+        if organizerString:
+            bodyBuffer.append(f':speaking_head: Organizer: {organizerString}')
+
         # Check if event duration is classified.
         if privateIndication['Duration']:
             durationString = privateString
         else:
             durationString = self.data['Duration']
-        bodyBuffer.append(f':stopwatch: Duration: {durationString} \n')
+        bodyBuffer.append(f':stopwatch: Duration: {durationString}')
 
         # Check if additional info is private.
         if self.data["Additional Info"]:
@@ -156,8 +183,20 @@ class Event:
 
         bodyBuffer.append('\n')
 
-        bodyBuffer.append(
-            ':mega: **ROLL CALL**: React with a :white_check_mark: to sign up.'
+        # If voice channel is public, specify in embed body.
+        if self.roles:
+            voiceString = (
+                ':loud_sound: Voice Channel: '
+                'A private voice channel has been created for this event. '
+                'Sign up to gain access.'
+            )
+        else:
+            voiceString = (
+                ':loud_sound: Voice Channel: ---Central Lobby---'
+            )
+
+        rollCallString = (
+            ':mega: **ROLL CALL**: Click on the :white_check_mark: to sign up.'
         )
 
         # Create a footer list that will be turned into a string for the embed
@@ -168,9 +207,8 @@ class Event:
             if datetime.utcnow() > self.data['Deadline']:
                 footerBuffer.append(f'\nRegistration has closed.\n')
 
-        # TODO: Add text for what channel to use. If custom it should
-        # read: A voice and text channel for this event has been opened in
-        # #events group.
+        # TODO: Add text for what channel to use.
+        # TODO: Add organizer in description of embed.
 
         if self.participants is not None:
             footerBuffer.append('Participants: (In chronological order).')
@@ -181,7 +219,15 @@ class Event:
 
         body = '\n'.join(bodyBuffer)
 
-        msg = preamble + '\n' + body
+        msg = ''
+        if includePreamble:
+            msg += (preamble + '\n')
+        if includeBody:
+            msg += (body + '\n\n')
+        if includeVoiceChnl:
+            msg += (voiceString + '\n')
+        if includeRollCall:
+            msg += (rollCallString)
 
         eventPost = discord.Embed(
             title=self.data["Event"],
@@ -198,22 +244,24 @@ class Event:
         elif timeToEvent.days > 1:
             countdownString = f'Event kicking off in {timeToEvent.days} days!'
         else:
-            countdownString = 'Event has concluded. '
-            'Thank you for participating.'
+            countdownString = 'Event has concluded.'
 
-        eventPost.set_author(
-            name=countdownString,
-            icon_url=f'{user.avatar_url}'  # TODO: Refactor the way user is handeled.
-        )
+        if includeAuthor:
+            eventPost.set_author(
+                name=countdownString,
+                icon_url=f'{user.avatar_url}'
+            )
 
         eventPost.set_thumbnail(
             url='https://cdn.discordapp.com/attachments/684911169189838863/684922720722485248/FR17_Logo_Opaque.png'
         )
-        eventPost.set_image(
-             url='https://cdn.discordapp.com/attachments/684911073304117319/684919964049866858/A_CARRACKING_GOOD_TIME.jpg'
-        )
+        if includeImage:
+            eventPost.set_image(
+                url='https://cdn.discordapp.com/attachments/684911073304117319/684919964049866858/A_CARRACKING_GOOD_TIME.jpg'
+            )
 
-        eventPost.set_footer(text=''.join(footerBuffer))
+        if includeFooter:
+            eventPost.set_footer(text=''.join(footerBuffer))
 
         return eventPost
 
@@ -260,7 +308,7 @@ class Person:
     def __init__(self, id, name):
         self.id = id
         self.name = name
-        self.roles = []
+        self.roles = {}
         self.Ships = []
         self.events = []
 

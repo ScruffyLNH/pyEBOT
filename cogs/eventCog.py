@@ -172,11 +172,8 @@ class EventCog(commands.Cog):
     async def assignId(self, orgEvent):
         # TODO: Docstring...
 
-        # Get the discord user object for the event organizer. Defaults to
-        # event manager if no other organizer is found.
-        user = self.client.get_user(Constants.EVENT_MANAGER_ID)
-        if orgEvent.organizer:
-            user = self.client.get_user(orgEvent.organizer.id)
+        # Get the discord user object for the event organizer.
+        user = self.client.get_user(orgEvent.organizer.id)
 
         # Make the embed object that will be posted on discor.
         embed = orgEvent.makeEmbed(True, user)
@@ -214,21 +211,20 @@ class EventCog(commands.Cog):
         else:
             makeRoles = False
 
-        # Make a list of rolenames.
-        roleNames = []
-        if makeRoles:
-            roleNames.append(eventData['Event'] + ' participant')
-            roleNames.append(eventData['Event'] + ' viewer')
-
-        # TODO: Check if role already exists. (although it shoulden't)
-
         # Make a list that will contain the role objects.
-        roles = []
         guild = self.client.get_guild(Constants.GUILD_ID)
-        for roleName in roleNames:
-            discordRole = await guild.create_role(name=roleName)
-            r = event.Role(discordRole.name, discordRole.id)
-            roles.append(r)
+
+        roles = {}
+        if makeRoles:
+            viewerRole = await guild.create_role(
+                name=eventData['Event'] + ' viewer'
+            )
+            participantRole = await guild.create_role(
+                name=eventData['Event'] + ' participant'
+            )
+
+            roles['viewer'] = viewerRole
+            roles['participant'] = participantRole
 
         return roles
 
@@ -426,7 +422,7 @@ class EventCog(commands.Cog):
 
         if status == 2:
             self.client.loop.create_task(
-            self.updateDiscord()
+                self.updateDiscord()
             )
             status = 0
             sheets.setCell(*Constants.CELL_INDEX, status)

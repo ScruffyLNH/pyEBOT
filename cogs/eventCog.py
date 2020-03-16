@@ -250,8 +250,6 @@ class EventCog(commands.Cog):
         )
         guild = self.client.get_guild(Constants.GUILD_ID)
         if roles:
-            participantRole = guild.get_role(roles[0].id)
-            viewerRole = guild.get_role(roles[1].id)
             txtOverwrites = {
                 guild.default_role: discord.PermissionOverwrite(
                     read_messages=False
@@ -260,11 +258,11 @@ class EventCog(commands.Cog):
                     read_messages=True,
                     send_messages=True
                     ),
-                participantRole: discord.PermissionOverwrite(
+                roles['participant']: discord.PermissionOverwrite(
                     read_messages=True,
                     send_messages=True
                     ),
-                viewerRole: discord.PermissionOverwrite(
+                roles['viewer']: discord.PermissionOverwrite(
                     read_messages=True,
                     send_messages=True
                     )

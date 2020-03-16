@@ -320,22 +320,22 @@ class EventCog(commands.Cog):
         # Append the event to the clients list of events
         self.client.orgEvents.append(registeredEvent)
 
-    async def postToDiscord(self, orgEvent):  # ##############
-        """Takes eventData objects and posts it to discord generating an id.
-        Id is then stored in eventData
+    # async def postToDiscord(self, orgEvent):  # ##############
+    #     """Takes eventData objects and posts it to discord generating an id.
+    #     Id is then stored in eventData
 
-        takes event data object
-        """
-        user = self.client.get_user(Constants.EVENT_MANAGER_ID)
-        if orgEvent.organizer:
-            user = self.client.get_user(orgEvent.organizer.id)
+    #     takes event data object
+    #     """
+    #     user = self.client.get_user(Constants.EVENT_MANAGER_ID)
+    #     if orgEvent.organizer:
+    #         user = self.client.get_user(orgEvent.organizer.id)
 
-        embed = orgEvent.makeEmbed(True, user)
-        msg = await self.channel.send(embed=embed)
-        print(f'New event added, ID is: {msg.id}')
+    #     embed = orgEvent.makeEmbed(True, user)
+    #     msg = await self.channel.send(embed=embed)
+    #     print(f'New event added, ID is: {msg.id}')
 
-        # Set the id of the event to the message id in discord.
-        orgEvent.id = msg.id
+    #     # Set the id of the event to the message id in discord.
+    #     orgEvent.id = msg.id
 
     async def instanciateRoles(self, roleNames, eventObject):
         """Creates a new discord role. The coroutines generates a role object

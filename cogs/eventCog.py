@@ -271,13 +271,13 @@ class EventCog(commands.Cog):
             }
             voiceOverwrites = {
                 guild.default_role: discord.PermissionOverwrite(
-                    read_messages=False  # TODO: Upgrade discord.py to 1.3 and use view_channel
+                    view_channel=False
                 ),
-                participantRole: discord.PermissionOverwrite(
-                    read_messages=True
+                roles['participant']: discord.PermissionOverwrite(
+                    view_channel=True
                 ),
-                viewerRole: discord.PermissionOverwrite(
-                    read_messages=False
+                roles['viewer']: discord.PermissionOverwrite(
+                    view_channel=False
                 )
             }
             channels = []

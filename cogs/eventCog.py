@@ -371,14 +371,19 @@ class EventCog(commands.Cog):
         """
 
         # Attempt to read cell.
+        authDenied = False  # Track if last authentication attempt failed.
         for attempt in range(5):
             try:
                 status = int(sheets.getCell(*Constants.CELL_INDEX))
-            except gspread.exceptions.APIError as e:
-                print(e)
+                if authDenied:
+                    print('Reauthentication successful.')
+                authDenied = False
+            except gspread.exceptions.APIError:
                 """ Access token expires after 1 hour. The gspread client needs
                 to refresh the access token.
                 """
+                print('Authentication expired, attempting reauthentication.')
+                authDenied = True
                 sheets.refreshAuth()
             else:
                 break

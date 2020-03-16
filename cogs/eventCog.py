@@ -299,9 +299,34 @@ class EventCog(commands.Cog):
         organizer = self.getEventOrganizer(eventData)
 
         # Create roles for event
-        roles = await self.createRoles(eventData)
+        discordRoles = await self.createRoles(eventData)
+        # Convert discordRoles to internal roles for persistant storage.
+        if discordRoles:
+            roles = {
+                'viewer': event.Role(
+                    discordRoles['viewer'].name,
+                    discordRoles['viewer'].id
+                ),
+                'participant': event.Role(
+                    discordRoles['participant'].name,
+                    discordRoles['participant'].id
+                )
+            }
+        else:
+            roles = {}
 
-        channels = await self.createChannels(eventData, roles)
+        discordChannels = await self.createChannels(eventData, discordRoles)
+
+        # Convert discordChannels to internal channels for persistent storage.
+        if discordChannels:
+            channels = [event.Channel(
+                c.name,
+                c.id,
+                str(c.type)
+            ) for c in discordChannels]
+        else:
+            channels = []
+            discordChannels = []
 
         # Instanciate event object.
         eventInstance = event.Event(

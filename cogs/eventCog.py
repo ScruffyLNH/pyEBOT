@@ -80,15 +80,6 @@ class EventCog(commands.Cog):
         index = eventObject.data['idIndex']
         sheets.setCell(*index, id)
 
-    def instanciateEvent(self, eventData, keys, organizer, roles):
-        # TODO: Make docstring...
-
-        orgEvent = event.Event(
-            None, eventData, keys, organizer, roles, [], []
-        )
-
-        return orgEvent
-
     def getEventOrganizer(self, eventData):
         """Gets the event organizer from all members in discord server.
 

@@ -29,7 +29,7 @@ if __name__ == "__main__":
     #     client.orgEvents = []
     #     print('No record found. Starting clean.')
     # else:
-    #     # Check if all objects from the loaded data are event.Event instances.
+    #     # Check if all objects from loaded data are event.Event instances.
     #     for item in client.orgEvents:
     #         if not isinstance(item, event.Event):
     #             client.orgEvents = []

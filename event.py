@@ -30,6 +30,13 @@ class Event:
         # for all keys.
         self.privateIndication = self.decodePrivate(data['Color Code'])
 
+    def getParticipant(self, id):
+        for p in self.participants:
+            if p.id == id:
+                return p
+        else:
+            return None
+
     # TODO: Refactor
     def addParticipant(self, person):
         # TODO: Documentation
@@ -308,7 +315,7 @@ class Person:
     def __init__(self, id, name):
         self.id = id
         self.name = name
-        self.roles = {}
+        self.roles = {}  # TODO: Figure out how  to specify participant/viewer as default keys.
         self.Ships = []
         self.events = []
 

@@ -14,7 +14,7 @@ class EventSignupHandler(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         if payload.channel_id == Constants.MAIN_CHANNEL_ID:
-            if payload.emoji.name == '✅':
+            if payload.emoji.name in Constants.REACTION_EMOJIS.values():
                 self.client.loop.create_task(
                     self.handleSignup(payload)
                 )
@@ -22,12 +22,12 @@ class EventSignupHandler(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
         if payload.channel_id == Constants.MAIN_CHANNEL_ID:
-            if payload.emoji.name == '✅':
+            if payload.emoji.name in Constants.REACTION_EMOJIS.values():
                 self.client.loop.create_task(
                     self.handleCancellation(payload)
                 )
 
-    async def handleSignup(self, payload):
+    async def handleSignup(self, payload):  # TODO: generalize method to handle more emojis and roles.
         messageId = payload.message_id
         # Check which event was reacted to
         orgEvent = self.findEvent(messageId)

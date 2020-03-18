@@ -49,3 +49,9 @@ class Constants:
 
     # Default event color.
     EVENT_COLOR = 0x6b90b5
+
+    # Valid emoji reactions.
+    REACTION_EMOJIS = {
+        'participant': '✅',
+        'viewer': '💬'
+    }

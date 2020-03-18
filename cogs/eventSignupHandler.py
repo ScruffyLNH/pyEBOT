@@ -112,7 +112,7 @@ class EventSignupHandler(commands.Cog):
                 )
                 welcomeMsg = (
                     f'Welcome to the event {member.mention}, '
-                    'glad you could make it!'
+                    'glad to have you!'
                 )
                 await eventChannel.send(welcomeMsg, delete_after=60.0)
         elif member.bot:

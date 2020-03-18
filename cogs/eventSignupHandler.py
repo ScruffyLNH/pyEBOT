@@ -87,13 +87,15 @@ class EventSignupHandler(commands.Cog):
                     )
                     return
 
+            # If user has passed all flags, add user to event and update
+            # the embed.
             p = event.Person(member.id, member.name)
+            if not p.getRole(orgEvent.roles['participant'].id):
             r = event.Role(memberRole.name, memberRole.id)
-            p.roles.append(r)
+                p.roles.append(r)  # TODO: Change persons roles to list
             orgEvent.participants.append(p)
 
-            # If not, add user.
-            # Update the embed.
+                # TODO: Update the embed.
 
             # If event has separate channel add roles to user, and send a
             # welcome mention in the text channel.

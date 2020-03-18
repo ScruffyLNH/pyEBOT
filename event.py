@@ -319,6 +319,13 @@ class Person:
         self.Ships = []
         self.events = []
 
+    def getRole(self, id):
+        for role in self.roles:
+            if role.id == id:
+                return role
+                break
+        else:
+            return None
 
 class EventRecord:
 

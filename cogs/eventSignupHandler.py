@@ -91,9 +91,9 @@ class EventSignupHandler(commands.Cog):
             # the embed.
             p = event.Person(member.id, member.name)
             if not p.getRole(orgEvent.roles['participant'].id):
-            r = event.Role(memberRole.name, memberRole.id)
+                r = event.Role(memberRole.name, memberRole.id)
                 p.roles.append(r)  # TODO: Change persons roles to list
-            orgEvent.participants.append(p)
+                orgEvent.participants.append(p)
 
                 # TODO: Update the embed.
 
@@ -104,7 +104,7 @@ class EventSignupHandler(commands.Cog):
                     orgEvent.roles['participant'].id
                 )
                 if participantRole not in member.roles:
-                await member.add_roles(participantRole)
+                    await member.add_roles(participantRole)
 
                 # TODO: Refactor. Make reference to orgEvent channel more robust.
                 eventChannel = self.client.get_channel(

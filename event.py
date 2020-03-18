@@ -315,7 +315,7 @@ class Person:
     def __init__(self, id, name):
         self.id = id
         self.name = name
-        self.roles = {}  # TODO: Figure out how  to specify participant/viewer as default keys.
+        self.roles = []
         self.Ships = []
         self.events = []
 

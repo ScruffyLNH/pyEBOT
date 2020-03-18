@@ -74,14 +74,16 @@ class EventSignupHandler(commands.Cog):
                     await message.remove_reaction('✅', member)
                     return
 
-            # TODO: If user has passed all flags, add user to event and update
-            # the embed.
             # Check if user already exists in the Event object.
-            for user in orgEvent.participants:
-                if user.id == member.id:
+            _user = orgEvent.getParticipant(member.id)  # TODO: Make this check for the acual role instead of person to determine if user is already signed up.
+            if _user:
+                # Check if user already has the role.
+                r = _user.getRole(orgEvent.roles['participant'].id)
+                if r:
                     await member.send(
                         'Hmm, you seem to already be registered for the event.'
-                        ' Strange. :shrug:'
+                        ' Strange. :shrug:',
+                        delete_after=60.0
                     )
                     return
 

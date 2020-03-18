@@ -12,7 +12,32 @@ class TestEventCog(unittest.TestCase):
     def setUp(self):
 
         self.client = commands.Bot('!')
-
+        self.keys = [
+            'Event',
+            'Id',
+            'Organizer',
+            'Date Time',
+            'Description',
+            'Location',
+            'Duration',
+            'Category',
+            'Members Only',
+            'Additional Info',
+            'Channel',
+            'Deadline',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            'Color Code',
+            'Update Status',
+        ]
         self.eventData = [
             {
                 'Event': 'VIKING SNATCH',
@@ -28,6 +53,7 @@ class TestEventCog(unittest.TestCase):
                 'Channel': '',
                 'Deadline': '1/1/2020 15:30:00',
                 '': '',
+                'Color Code': 0,
                 'Update Status': 0
             },
             {
@@ -43,6 +69,7 @@ class TestEventCog(unittest.TestCase):
                 'Channel': '',
                 'Deadline': '',
                 '': '',
+                'Color Code': 0,
                 'Update Status': ''
             },
             {
@@ -59,6 +86,7 @@ class TestEventCog(unittest.TestCase):
                 'Channel': '',
                 'Deadline': '1/1/2020 15:30:00',
                 '': '',
+                'Color Code': 0,
                 'Update Status': ''
             },
             {
@@ -75,6 +103,7 @@ class TestEventCog(unittest.TestCase):
                 'Channel': '',
                 'Deadline': '',
                 '': '',
+                'Color Code': 0,
                 'Update Status': ''
             }
         ]
@@ -94,6 +123,7 @@ class TestEventCog(unittest.TestCase):
                 'Channel': '',
                 'Deadline': '1/1/2020 15:30:00',
                 '': '',
+                'Color Code': 0,
                 'Update Status': 0
             },
             {
@@ -109,6 +139,7 @@ class TestEventCog(unittest.TestCase):
                 'Channel': '',
                 'Deadline': '',
                 '': '',
+                'Color Code': 0,
                 'Update Status': ''
             },
             {
@@ -125,6 +156,7 @@ class TestEventCog(unittest.TestCase):
                 'Channel': '',
                 'Deadline': '1/1/2020 15:30:00',
                 '': '',
+                'Color Code': 0,
                 'Update Status': ''
             },
             {
@@ -141,6 +173,7 @@ class TestEventCog(unittest.TestCase):
                 'Channel': '',
                 'Deadline': '',
                 '': '',
+                'Color Code': 0,
                 'Update Status': ''
             }
         ]
@@ -161,7 +194,7 @@ class TestEventCog(unittest.TestCase):
 
         self.unsortedEvents = [
             {
-                'index': (1, 2),
+                'index': (3, 2),
                 'event': {
                     'Event': 'OPERATION BEASTMASTER',
                     'Id': '', 'Organizer': '',
@@ -176,11 +209,12 @@ class TestEventCog(unittest.TestCase):
                     'Channel': '',
                     'Deadline': '',
                     '': '',
+                    'Color Code': 0,
                     'Update Status': ''
                 }
             },
             {
-                'index': (3, 2),
+                'index': (5, 2),
                 'event':
                 {
                     'Event': 'OPERATION NICKEL GRASS',
@@ -196,6 +230,7 @@ class TestEventCog(unittest.TestCase):
                     'Channel': '',
                     'Deadline': '',
                     '': '',
+                    'Color Code': 0,
                     'Update Status': ''
                 }
             }
@@ -215,7 +250,8 @@ class TestEventCog(unittest.TestCase):
     # SortEvents tests
     def test_sortEvents_returnIsSameLengthAsInput(self):
         ec = eventCog.EventCog(self.client)
-        ret = ec.sortEvents(self.unsortedEvents)
+        eventData = [d['event'] for d in self.unsortedEvents]
+        ret = ec.sortEvents(eventData)
         self.assertEqual(len(self.unsortedEvents), len(ret))
 
     # ConvertDates tests
@@ -234,10 +270,10 @@ class TestEventCog(unittest.TestCase):
     def test_checkId_indexIsCorrect(self):
         ec = eventCog.EventCog(self.client)
         ret = ec.checkId(self.eventData)
-        index = (1, 2)
-        self.assertEqual(ret[0]['index'], index)
         index = (3, 2)
-        self.assertEqual(ret[1]['index'], index)
+        self.assertEqual(ret[0]['idIndex'], index)
+        index = (5, 2)
+        self.assertEqual(ret[1]['idIndex'], index)
 
     def test_checkId_returnProperNumOfListEntries(self):
         ec = eventCog.EventCog(self.client)

@@ -103,6 +103,7 @@ class EventSignupHandler(commands.Cog):
                 participantRole = guild.get_role(
                     orgEvent.roles['participant'].id
                 )
+                if participantRole not in member.roles:
                 await member.add_roles(participantRole)
 
                 # TODO: Refactor. Make reference to orgEvent channel more robust.

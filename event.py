@@ -327,6 +327,24 @@ class Person:
         else:
             return None
 
+    def removeRole(self, id):
+        """Removes role from Person object given a valid id, and returns it.
+        Also removes duplicates if they exist. In that case, the returned role
+        will be the last duplicate found. Returns None if role was not found.
+
+        :param id: Id of the role to be removed
+        :type id: int
+        """
+
+        indices = [i for i, role in enumerate(self.roles) if role.id == id]
+        foundRole = None
+        count = 0
+        for i in indices:
+            foundRole = self.roles.pop(i - count)
+            count += 1
+        return foundRole
+
+
 class EventRecord:
 
     def __init__(self, eventId, eventName):

@@ -128,8 +128,28 @@ class EventSignupHandler(commands.Cog):
         # Grant user roles if the event has a private channel.
         # Mention user in event channel: "@examplePerson Welcome to the event!"
 
-    async def handleCancellation(self, payload):
-        pass
+    async def handleCancellation(self, payload):  # TODO: generalize method to handle more emojis and roles.
+
+        messageId = payload.message_id
+        # Check which event was reacted to
+        orgEvent = self.findEvent(messageId)
+        # Get channel object
+        channel = self.client.get_channel(payload.channel_id)
+        # Get the Message object.
+        message = await channel.fetch_message(messageId)
+        # Get the Guild object.
+        guild = message.guild
+        # Get the user who reacted
+        member = guild.get_member(payload.user_id)
+
+        if orgEvent.roles:
+            roleId = orgEvent.roles['participant'].id
+            participantRole = guild.get_role(roleId)
+            await member.remove_roles(participantRole)
+
+            person = orgEvent.getParticipant(member.id)
+            if person:
+                person.removeRole(roleId)
 
     def findEvent(self, id):
         for orgEvent in self.client.orgEvents:

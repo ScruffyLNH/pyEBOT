@@ -237,9 +237,6 @@ class EventCog(commands.Cog):
         # Check if event contains private info by checking color code.
         if eventData['Color Code'] != 0:
             makeRoles = True
-        elif eventData['Channel'] != '':
-            # If event has a custom channel name, roles should be created.
-            makeRoles = True
         elif eventData['Members Only'].upper() == 'YES':
             makeRoles = True
         else:

@@ -216,14 +216,14 @@ class EventCog(commands.Cog):
 
         roles = {}
         if makeRoles:
-            viewerRole = await guild.create_role(
-                name=eventData['Event'] + ' viewer'
+            spectatorRole = await guild.create_role(
+                name=eventData['Event'] + ' spectator'
             )
             participantRole = await guild.create_role(
                 name=eventData['Event'] + ' participant'
             )
 
-            roles['viewer'] = viewerRole
+            roles['spectator'] = spectatorRole
             roles['participant'] = participantRole
 
         return roles
@@ -293,9 +293,9 @@ class EventCog(commands.Cog):
         # Convert discordRoles to internal roles for persistant storage.
         if discordRoles:
             roles = {
-                'viewer': event.Role(
-                    discordRoles['viewer'].name,
-                    discordRoles['viewer'].id
+                'spectator': event.Role(
+                    discordRoles['spectator'].name,
+                    discordRoles['spectator'].id
                 ),
                 'participant': event.Role(
                     discordRoles['participant'].name,

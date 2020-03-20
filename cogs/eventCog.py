@@ -389,25 +389,25 @@ class EventCog(commands.Cog):
     #     # Set the id of the event to the message id in discord.
     #     orgEvent.id = msg.id
 
-    async def instanciateRoles(self, roleNames, eventObject):
-        """Creates a new discord role. The coroutines generates a role object
-        and puts it in the passed in eventObject.
+    # async def instanciateRoles(self, roleNames, eventObject):
+    #     """Creates a new discord role. The coroutines generates a role object
+    #     and puts it in the passed in eventObject.
 
-        :param roleName: Name of the role.
-        :type roleName: string
-        :param eventObject: Instance of Event class for which the role is made.
-        :type eventObject: Event
-        """
-        guild = self.client.get_guild(Constants.GUILD_ID)
+    #     :param roleName: Name of the role.
+    #     :type roleName: string
+    #     :param eventObject: Instance of Event class for which the role is made.
+    #     :type eventObject: Event
+    #     """
+    #     guild = self.client.get_guild(Constants.GUILD_ID)
 
-        # TODO: Check if role already exists.
+    #     # TODO: Check if role already exists.
 
-        roles = []
-        for roleName in roleNames:
-            discordRole = await guild.create_role(name=roleName)
-            r = event.Role(discordRole.name, discordRole.id)
-            roles.append(r)
-        eventObject.roles = roles
+    #     roles = []
+    #     for roleName in roleNames:
+    #         discordRole = await guild.create_role(name=roleName)
+    #         r = event.Role(discordRole.name, discordRole.id)
+    #         roles.append(r)
+    #     eventObject.roles = roles
 
     # Loops
     @tasks.loop(seconds=5)

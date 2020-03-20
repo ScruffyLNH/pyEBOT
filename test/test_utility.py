@@ -4,6 +4,7 @@ import json
 import event
 import sheets
 import utility
+import os
 from typing import List
 
 
@@ -29,7 +30,7 @@ class TestUtility(unittest.TestCase):
             print(e)
 
     def tearDown(self):
-        pass  # os.remove('tstFile.json')
+        os.remove('tstFile.json')
 
     # Tests
     # def test_loadData(self):

@@ -263,45 +263,50 @@ class EventCog(commands.Cog):
         return roles
 
     async def createChannels(self, eventData, roles):
-        # TODO: Refactor this mess
-        if eventData['Channel'] != '':
-            txtChannelName = eventData['Channel'] + '-info'
-            voiceChannelName = eventData['Channel']
-        else:
-            txtChannelName = eventData['Event'] + '-info'
-            voiceChannelName = eventData['Event']
 
-        categoryChannel = self.client.get_channel(
+        # Get the position of main event category channel
+        eventsCategoryChannel = self.client.get_channel(
             Constants.EVENTS_CAT_CHANNEL_ID
         )
+        # Set the position to right underneath the main events cat. channel
+        position = eventsCategoryChannel.position + 1
+
         guild = self.client.get_guild(Constants.GUILD_ID)
+
         if roles:
             textOverwrites = self.makeTextOverwrites(guild, roles)
             voiceOverwrites = self.makeVoiceOverwrites(guild, roles)
-            }
-            voiceOverwrites = {
-                guild.default_role: discord.PermissionOverwrite(
-                    view_channel=False
-                ),
-                roles['participant']: discord.PermissionOverwrite(
-                    view_channel=True
-                ),
-                roles['viewer']: discord.PermissionOverwrite(
-                    view_channel=False
-                )
-            }
-            channels = []
-            txt_chnl = await categoryChannel.create_text_channel(
-                txtChannelName,
-                overwrites=txtOverwrites
-            )
-            voice_chnl = await categoryChannel.create_voice_channel(
-                voiceChannelName,
+
+            categoryChannel = await guild.create_category_channel(
+                '📌 ' + eventData['Event'],
                 overwrites=voiceOverwrites
             )
-            channels.append(txt_chnl)
-            channels.append(voice_chnl)
+            await categoryChannel.edit(position=position)
+            briefingChannel = await categoryChannel.create_text_channel(
+                'Briefing',
+                overwrites=textOverwrites
+                # TODO: Concider denying permission to send message by adding
+                # kwarg to method that makes textOverwrites.
+            )
+            discussionChannel = await categoryChannel.create_text_channel(
+                'Discussion',
+                overwrites=textOverwrites
+            )
+            mainVoiceChannel = await categoryChannel.create_voice_channel(
+                'Event',
+                overwrites=voiceOverwrites
+            )
+
+            channels = {
+                'category': categoryChannel,
+                'briefing': briefingChannel,
+                'discussion': discussionChannel,
+                'mainVoice': mainVoiceChannel
+            }
+
             return channels
+        else:
+            return{}
 
     async def processData(self, eventData, keys):
 

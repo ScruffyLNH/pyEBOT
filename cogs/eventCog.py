@@ -330,15 +330,13 @@ class EventCog(commands.Cog):
         discordChannels = await self.createChannels(eventData, discordRoles)
 
         # Convert discordChannels to internal channels for persistent storage.
-        if discordChannels:
-            channels = [event.Channel(
-                c.name,
-                c.id,
-                str(c.type)
-            ) for c in discordChannels]
-        else:
-            channels = []
-            discordChannels = []
+        channels = {}
+        for key, channel in discordChannels.items():
+            channels[key] = event.Channel(
+                channel.name,
+                channel.id,
+                str(channel.type)
+            )
 
         # Instanciate event object.
         eventInstance = event.Event(

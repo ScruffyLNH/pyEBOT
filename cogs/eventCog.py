@@ -168,6 +168,40 @@ class EventCog(commands.Cog):
 
         return newEvents
 
+    def makeTextOverwrites(self, guild, roles):
+        txtOverwrites = {
+            guild.default_role: discord.PermissionOverwrite(
+                read_messages=False
+            ),
+            guild.me: discord.PermissionOverwrite(
+                read_messages=True,
+                send_messages=True
+            ),
+            roles['participant']: discord.PermissionOverwrite(
+                read_messages=True,
+                send_messages=True
+            ),
+            roles['spectator']: discord.PermissionOverwrite(
+                read_messages=True,
+                send_messages=True
+            )
+        }
+        return txtOverwrites
+
+    def makeVoiceOverwrites(self, guild, roles):
+        voiceOverwrites = {
+            guild.default_role: discord.PermissionOverwrite(
+                view_channel=False
+            ),
+            roles['participant']: discord.PermissionOverwrite(
+                view_channel=True
+            ),
+            roles['spectator']: discord.PermissionOverwrite(
+                view_channel=False
+            )
+        }
+        return voiceOverwrites
+
     # Coroutines
     async def assignId(self, orgEvent):
         # TODO: Docstring...
@@ -242,22 +276,8 @@ class EventCog(commands.Cog):
         )
         guild = self.client.get_guild(Constants.GUILD_ID)
         if roles:
-            txtOverwrites = {
-                guild.default_role: discord.PermissionOverwrite(
-                    read_messages=False
-                    ),
-                guild.me: discord.PermissionOverwrite(
-                    read_messages=True,
-                    send_messages=True
-                    ),
-                roles['participant']: discord.PermissionOverwrite(
-                    read_messages=True,
-                    send_messages=True
-                    ),
-                roles['viewer']: discord.PermissionOverwrite(
-                    read_messages=True,
-                    send_messages=True
-                    )
+            textOverwrites = self.makeTextOverwrites(guild, roles)
+            voiceOverwrites = self.makeVoiceOverwrites(guild, roles)
             }
             voiceOverwrites = {
                 guild.default_role: discord.PermissionOverwrite(

@@ -351,20 +351,22 @@ class EventCog(commands.Cog):
         # the newly opened channel.
         # TODO: Make sure that private channel embed is also updated when the
         # main embed is updated.
-        for channel in discordChannels:
-            if channel.type == discord.ChannelType.text:
-                user = self.client.get_user(registeredEvent.organizer.id)
-                embed = registeredEvent.makeEmbed(
-                    False,
-                    user,
-                    includeAuthor=False,
-                    includeFooter=False,
-                    includePreamble=False,
-                    includeRollCall=False,
-                    includeVoiceChnl=False
-                )
-                privateMsg = await channel.send(embed=embed)
-                # TODO: Figure out how to store privateMsg.
+        if 'briefing' in discordChannels:
+            user = self.client.get_user(registeredEvent.organizer.id)
+            embed = registeredEvent.makeEmbed(
+                False,
+                user,
+                includeAuthor=False,
+                includeFooter=False,
+                includePreamble=False,
+                includeRollCall=False,
+                includeVoiceChnl=False
+            )
+            channel = discordChannels['briefing']
+            privateMsg = await channel.send(embed=embed)
+            # TODO: Figure out how to store privateMsg. This is the embed
+            # msg sent to private briefing channels. In order to update, the
+            # d.py message object must be stored.
 
         # Write IDs back to google sheets.
         self.writeIdToSheets(eventInstance)

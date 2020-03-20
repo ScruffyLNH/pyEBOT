@@ -28,6 +28,21 @@ class EventSignupHandler(commands.Cog):
                 )
 
     async def handleSignup(self, payload):  # TODO: generalize method to handle more emojis and roles.
+
+        if payload.emoji.name == Constants.REACTION_EMOJIS['participant']:
+            await self.handleParticipationRequest(payload)
+
+        if payload.emoji.name == Constants.REACTION_EMOJIS['spectator']:
+            await self.handleSpectatorRequest()
+
+        # If private event check if user is member.
+        # Instanciate user and add to client.orgEvents.
+        # Update embed.
+        # Grant user roles if the event has a private channel.
+        # Mention user in event channel: "@examplePerson Welcome to the event!"
+
+    async def handleCancellation(self, payload):  # TODO: generalize method to handle more emojis and roles.
+
         messageId = payload.message_id
         # Check which event was reacted to
         orgEvent = self.findEvent(messageId)

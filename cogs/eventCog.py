@@ -193,6 +193,9 @@ class EventCog(commands.Cog):
             guild.default_role: discord.PermissionOverwrite(
                 view_channel=False
             ),
+            guild.me: discord.PermissionOverwrite(
+                view_channel=True
+            ),
             roles['participant']: discord.PermissionOverwrite(
                 view_channel=True
             ),

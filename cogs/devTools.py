@@ -44,7 +44,8 @@ class DevTools(commands.Cog):
         guild = self.client.get_guild(Constants.GUILD_ID)
         for channel in guild.channels:
             channels += f'\n {channel.name}'
-            channels += f'\n\tid: {channel.id},\n\ttype: {channel.type}\n'
+            channels += f'\n\tid: {channel.id},\n\ttype: {channel.type},'
+            channels += f'\n\tposition: {channel.position}\n'
         await ctx.send(f'Channels in this server:\n{channels}')
 
     @commands.command()

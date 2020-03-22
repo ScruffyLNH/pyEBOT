@@ -58,7 +58,6 @@ class DevTools(commands.Cog):
         roles = roles.translate(str.maketrans('', '', '@'))
         await ctx.send(f'Roles on this server:\n{roles}')
 
-
     @commands.command()
     async def getGuilds(self, ctx):
         guilds = ''
@@ -69,6 +68,41 @@ class DevTools(commands.Cog):
     @commands.command()
     async def clear(self, ctx, amount=1):
         await ctx.channel.purge(limit=(amount + 1))
+
+    @commands.command()
+    async def clearEvents(self, ctx):
+
+        guild = self.client.get_guild(Constants.GUILD_ID)
+        signupChannel = ctx.channel
+        categoryChannels = []
+
+        # Delete all roles and channels.
+        for orgEvent in self.client.orgEvents:
+            for role in orgEvent.roles.values():
+                dRole = guild.get_role(role.id)
+                await dRole.delete()
+            for channel in orgEvent.channels.values():
+                dChannel = guild.get_channel(channel.id)
+                # Wait to delete category channels until all channels within
+                # the category channels are gone.
+                if dChannel.type is not discord.ChannelType.category:
+                    await dChannel.delete()
+                else:
+                    categoryChannels.append(dChannel)
+        # Delete category channels now that they are cleared.
+        for dChannel in categoryChannels:
+            await dChannel.delete()
+
+        # Delete all embed messages.
+        for orgEvent in self.client.orgEvents:
+            msg = await signupChannel.fetch_message(orgEvent.id)
+            await msg.delete()
+
+        await ctx.message.delete()
+
+        await ctx.send(
+            'Channels and roles associated with events cleared.',
+            delete_after=2.5)
 
     @commands.command()
     async def editMessage(self, ctx, messageId, *, newContent):

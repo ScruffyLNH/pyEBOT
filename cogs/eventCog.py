@@ -239,6 +239,8 @@ class EventCog(commands.Cog):
             makeRoles = True
         elif eventData['Members Only'].upper() == 'YES':
             makeRoles = True
+        elif eventData['Add Channels'].upper() == 'YES':
+            makeRoles = True
         else:
             makeRoles = False
 

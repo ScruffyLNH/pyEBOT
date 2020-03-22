@@ -101,7 +101,8 @@ class Event:
         # If separate channels has been created for event a string explaining
         # this will be added to the preamble
         if (self.data['Members Only'].upper() == 'YES' or
-                True in self.privateIndication.values()):
+                True in self.privateIndication.values() or
+                self.data['Add Channels'].upper() == 'YES'):
 
             preambleBuffer.append(
                 ':hash: Separate channels for this event has been created. '

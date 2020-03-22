@@ -72,6 +72,8 @@ class DevTools(commands.Cog):
     @commands.command()
     async def clearEvents(self, ctx):
 
+        await ctx.send('Now clearing all events', delete_after=3.0)
+
         guild = self.client.get_guild(Constants.GUILD_ID)
         signupChannel = ctx.channel
         categoryChannels = []
@@ -102,7 +104,7 @@ class DevTools(commands.Cog):
 
         await ctx.send(
             'Channels and roles associated with events cleared.',
-            delete_after=2.5)
+            delete_after=3.0)
 
     @commands.command()
     async def editMessage(self, ctx, messageId, *, newContent):

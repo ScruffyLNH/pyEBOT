@@ -270,8 +270,16 @@ class EventCog(commands.Cog):
         eventsCategoryChannel = self.client.get_channel(
             Constants.EVENTS_CAT_CHANNEL_ID
         )
-        # Set the position to right underneath the main events cat. channel
-        position = eventsCategoryChannel.position + 1
+        # Get the number of category channels already created from previous
+        # events.
+        numCategoryChannels = sum(
+            len(e.roles) != 0 for e in self.client.orgEvents
+        )
+        # Set the position to underneath the last crated event category
+        # channel, or under Events category if none exist.
+        position = (
+            eventsCategoryChannel.position + numCategoryChannels + 1
+        )
 
         guild = self.client.get_guild(Constants.GUILD_ID)
 

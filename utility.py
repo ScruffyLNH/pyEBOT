@@ -10,8 +10,8 @@ def loadData(fileName):
     :rtype: var, None
     """
     try:
-        with open(fileName) as data:
-            data = json.load(fileName)
+        with open(fileName) as f:
+            data = json.load(f)
     except FileNotFoundError as e:
         print(e)
         data = None

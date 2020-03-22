@@ -3,6 +3,9 @@
 # Credentials file to access google drive
 creds.json
 
+# File storing discord client token.
+token.json
+
 ### Resources ###
 Res/*
 

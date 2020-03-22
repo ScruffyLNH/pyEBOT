@@ -2,6 +2,7 @@ import discord # noqa
 import os
 import event
 import managedMessages
+import json
 from utility import loadData
 from constants import Constants
 from discord.ext import commands
@@ -87,5 +88,7 @@ for filename in os.listdir('./cogs'):
 # TODO: BEFORE REPO CAN GO PUBLIC THE TOKEN MUST BE STORED IN AN UNTRACKED FILE
 # TODO: BEFORE BOT CAN BE INVITED TO OFFICIAL SERVER A NEW TOKEN MUST BE MADE
 #region Run client by passing in token # noqa
-client.run('NjY1ODQ2MTI2NzMzNDI2NzA5.Xhrj1Q.dWY00Kdjl8jTsVx4K099PCc-4QY')
+token = loadData('token.json')
+
+client.run(token)
 #endregion # noqa

@@ -168,6 +168,17 @@ class EventCog(commands.Cog):
 
         return newEvents
 
+    def determineRoleCreation(self, eventData):
+        if (
+            eventData['Color Code'] != 0 or
+            eventData['Members Only'].upper() == 'YES' or
+            eventData['Add Channels'].upper() == 'YES' or
+            eventData['Additional Info'] != ''
+        ):
+            return True
+        else:
+            return False
+
     def makeTextOverwrites(self, guild, roles):
         txtOverwrites = {
             guild.default_role: discord.PermissionOverwrite(
@@ -237,15 +248,7 @@ class EventCog(commands.Cog):
         """
 
         # Determine if custom roles are required for event.
-        # Check if event contains private info by checking color code.
-        if eventData['Color Code'] != 0:
-            makeRoles = True
-        elif eventData['Members Only'].upper() == 'YES':
-            makeRoles = True
-        elif eventData['Add Channels'].upper() == 'YES':
-            makeRoles = True
-        else:
-            makeRoles = False
+        makeRoles = self.determineRoleCreation(eventData)
 
         # Make a list that will contain the role objects.
         guild = self.client.get_guild(Constants.GUILD_ID)

@@ -185,11 +185,11 @@ class Event:
         bodyBuffer.append(f':stopwatch: Duration: {durationString}')
 
         # Check if additional info is private.
-        if self.data["Additional Info"]:
-            if not privateIndication['Additional Info']:
-                bodyBuffer.append(self.data['Additional Info'])
+        # if self.data["Additional Info"]:
+        #     if not privateIndication['Additional Info']:
+        #         bodyBuffer.append(self.data['Additional Info'])
 
-        bodyBuffer.append('\n')
+        # bodyBuffer.append('\n')
 
         # If voice channel is public, specify in embed body.
         if self.roles:

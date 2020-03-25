@@ -377,9 +377,12 @@ class EventCog(commands.Cog):
             )
             channel = discordChannels['briefing']
             privateMsg = await channel.send(embed=embed)
+
+            if eventData['Additional Info'] != '':
+                await channel.send(eventData['Additional Info'])
             # TODO: Figure out how to store privateMsg. This is the embed
             # msg sent to private briefing channels. In order to update, the
-            # d.py message object must be stored.
+            # d.py message object id must be stored.
 
         # Write IDs back to google sheets.
         self.writeIdToSheets(eventInstance)

@@ -19,13 +19,13 @@ class TestUtility(unittest.TestCase):
             self.testData.append(inst)
 
         try:
-            jasonData = json.dumps(
+            jsonData = json.dumps(
                     self.testData,
                     default=lambda o: o.__dict__,
                     indent=2
                     )
             with open('tstFile.json', 'w', encoding='utf-8') as f:
-                json.dump(jasonData, f)
+                json.dump(jsonData, f)
         except Exception as e:
             print(e)
 

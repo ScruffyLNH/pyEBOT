@@ -33,13 +33,31 @@ class TestUtility(unittest.TestCase):
         os.remove('tstFile.json')
 
     # Tests
-    # def test_loadData(self):
-    #     res = utility.loadData('Non-existent-file')
-    #     self.assertIsNone(res)
+    # loadData tests
+    def test_loadData_returnIsNoneForInvalidPath(self):
+        ret = utility.loadData('Non-existent-file')
+        self.assertIsNone(ret)
 
-    def test_myMethod(self):
-        pass
-        # utility.TestClass.myMethod('Ughhabughha')
+    def test_loadData_returnIsStringWhenLoadingString(self):
+        ret = utility.loadData('tstFile.json')
+        self.assertIsInstance(ret, str)
+
+    # saveData tests
+    def test_saveData_fileCreatedForValidData(self):
+        testString = 'something'
+        success = utility.saveData('saveDataTest.json', testString)
+        self.assertTrue(os.path.exists('saveDataTest.json'))
+        if success:
+            os.remove('saveDataTest.json')
+
+    # formatData tests
+    def test_formatData_something(self):
+        o = InstanceTestClass()
+        jsonData = utility.formatData(o)
+
+        utility.saveData('tempTest1.json', jsonData)
+        mything = utility.loadData('tempTest1.json')
+        print(mything)
 
 
 # TODO: Do this properly. Should probably be a class mehtod or something.

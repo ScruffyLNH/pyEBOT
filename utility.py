@@ -20,24 +20,45 @@ def loadData(fileName):
 
 def saveData(fileName, data):
     """Save data to persistent file. If file does not already exist it will
-    be created. The function will return 0 if save was successful. If not 1
-    will be returned.
+    be created. The function will return True if successful, else False.
 
     :param fileName: Name of the file to save to.
     :type fileName: string
     :param data: The data object to save
     :type data: var
-    :return: Status. 0 if successful, 1 if unsuccessful.
-    :rtype: int
+    :return: Status. True if successful, False if unsuccessful.
+    :rtype: bool
     """
-    pass
+    try:
+        with open(fileName, 'w', encoding='utf-8') as f:
+            f.write(data)
+    except Exception as e:
+        print(e)
+        return False
+    return True
 
 
-def packData(obj):
-    pass
+def formatData(obj):
+    """format data into json string using the dictionary structure as default.
+    :param obj: The python object to be formatted.
+    :type obj: object
+    :return: The object data parsed into json string, or None if formatting was
+    unsuccessful.
+    :rtype: string, None
+    """
+    try:
+        jsonData = json.dumps(
+            obj,
+            default=lambda o: o.__dict__,
+            indent=2
+        )
+    except Exception as e:
+        print(e)
+        return None
+    return jsonData
 
 
-def unpackData(fileName):
+def unformatData(fileName):
     pass
 
 

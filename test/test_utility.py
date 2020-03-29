@@ -51,13 +51,11 @@ class TestUtility(unittest.TestCase):
             os.remove('saveDataTest.json')
 
     # formatData tests
-    def test_formatData_something(self):
+    def test_formatData_something(self):  # TODO: More tests for formatData
         o = InstanceTestClass()
         jsonData = utility.formatData(o)
 
-        utility.saveData('tempTest1.json', jsonData)
-        mything = utility.loadData('tempTest1.json')
-        print(mything)
+        self.assertIsNotNone(jsonData)
 
 
 # TODO: Do this properly. Should probably be a class mehtod or something.

@@ -60,29 +60,25 @@ class TestEvent(unittest.TestCase):
     # Event class tests
     # getParticipant tests
     def test_getParticipant_returnIsPersonObjectForValidId(self):
-        participant = event.Person(123456789, 'SomeName')
+        participant = event.Person(id=123456789, name='SomeName')
         eventInstance = event.Event(
-            999,
-            self.eventData,
-            self.keys,
-            None,
-            {},
-            [],
-            [participant]
+            id=999,
+            data=self.eventData,
+            keys=self.keys,
+            participants=[participant]
         )
         ret = eventInstance.getParticipant(123456789)
         self.assertIsInstance(ret, event.Person)
 
     def test_getParticipant_returnIsNoneForInvalidId(self):
-        participant = event.Person(123456789, 'SomeName')
+        participant = event.Person(id=123456789, name='SomeName')
         eventInstance = event.Event(
-            999,
-            self.eventData,
-            self.keys,
-            None,
-            {},
-            [],
-            [participant]
+            id=999,
+            data=self.eventData,
+            keys=self.keys,
+            roles={},
+            channels=[],
+            participants=[participant]
         )
         ret = eventInstance.getParticipant(12345555)
         self.assertIsNone(ret)
@@ -90,16 +86,16 @@ class TestEvent(unittest.TestCase):
     # Person class tests
     # getRole tests
     def test_getRole_returnIsCorrectRole(self):
-        person = event.Person(123456, 'SomeName')
-        role = event.Role('roleName', 11112222)
+        person = event.Person(id=123456, name='SomeName')
+        role = event.Role(id=11112222, name='roleName')
         person.roles.append(role)
 
         ret = person.getRole(11112222)
         self.assertEqual(ret, role)
 
     def test_getRole_returnIsNoneForInvalidId(self):
-        person = event.Person(123456, 'SomeName')
-        role = event.Role('roleName', 11112222)
+        person = event.Person(id=123456, name='SomeName')
+        role = event.Role(id=11112222, name='roleName')
         person.roles.append(role)
 
         ret = person.getRole(42)
@@ -107,19 +103,19 @@ class TestEvent(unittest.TestCase):
 
     # removeRole tests
     def test_removeRole_returnIsCorrectRole(self):
-        person = event.Person(123456, 'SomeName')
-        role = event.Role('roleName', 11112222)
+        person = event.Person(id=123456, name='SomeName')
+        role = event.Role(id=11112222, name='roleName')
         person.roles.append(role)
 
         ret = person.removeRole(11112222)
         self.assertEqual(ret, role)
 
     def test_removeRole_correctRoleIsRemoved(self):
-        person = event.Person(123456, 'SomeName')
+        person = event.Person(id=123456, name='SomeName')
         roles = [
-            event.Role('roleName', 11112222),
-            event.Role('otherRole', 123123),
-            event.Role('finalRole', 11447788)
+            event.Role(id=11112222, name='roleName'),
+            event.Role(id=123123, name='otherRole'),
+            event.Role(id=11447788, name='finalRole')
         ]
         [person.roles.append(r) for r in roles]
 
@@ -128,13 +124,13 @@ class TestEvent(unittest.TestCase):
         self.assertNotIn(roles[1], person.roles)
 
     def test_removeRole_duplicateRolesAreRemoved(self):
-        person = event.Person(123456, 'SomeName')
+        person = event.Person(id=123456, name='SomeName')
         roles = [
-            event.Role('roleName', 11112222),
-            event.Role('dupeRole1', 123123),
-            event.Role('otherRole', 11447788),
-            event.Role('dupeRole2', 123123),
-            event.Role('finalRole', 99999999)
+            event.Role(id=11112222, name='roleName'),
+            event.Role(id=123123, name='dupeRole1'),
+            event.Role(id=11447788, name='otherRole'),
+            event.Role(id=123123, name='dupeRole2'),
+            event.Role(id=99999999, name='finalRole')
         ]
         [person.roles.append(r) for r in roles]
 

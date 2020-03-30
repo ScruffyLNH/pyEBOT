@@ -45,7 +45,7 @@ class EventCog(commands.Cog):
         # Parse data from google sheets to event data.
         parsedData = self.parseEventData(sheetData)
 
-        # Process each event by instanciation event objects and posting
+        # Process each event by instanciating event objects and posting
         # event messages to discord.
         for eventData in parsedData:
             await self.client.loop.create_task(
@@ -95,12 +95,12 @@ class EventCog(commands.Cog):
         # Check if the organizer exists in the member list.
         for member in members:
             if eventData['Organizer'] == member.display_name:
-                p = event.Person(member.id, member.display_name)
+                p = event.Person(id=member.id, name=member.display_name)
                 break
         else:
             # Defaults to event manager if another organizer was not found.
             member = self.client.get_user(Constants.EVENT_MANAGER_ID)
-            p = event.Person(member.id, member.display_name)
+            p = event.Person(id=member.id, name=member.display_name)
 
         return p
 
@@ -332,12 +332,12 @@ class EventCog(commands.Cog):
         if discordRoles:
             roles = {
                 'spectator': event.Role(
-                    discordRoles['spectator'].name,
-                    discordRoles['spectator'].id
+                    id=discordRoles['spectator'].id,
+                    name=discordRoles['spectator'].name
                 ),
                 'participant': event.Role(
-                    discordRoles['participant'].name,
-                    discordRoles['participant'].id
+                    id=discordRoles['participant'].id,
+                    name=discordRoles['participant'].name
                 )
             }
         else:
@@ -349,14 +349,24 @@ class EventCog(commands.Cog):
         channels = {}
         for key, channel in discordChannels.items():
             channels[key] = event.Channel(
-                channel.name,
-                channel.id,
-                str(channel.type)
+                id=channel.id,
+                name=channel.name,
+                channelType=channel.type  #TODO: CHECK THIS ............................................................................
             )
 
         # Instanciate event object.
         eventInstance = event.Event(
-            None, eventData, keys, organizer, roles, channels, []
+            data=eventData,
+            keys=keys,
+            organizer=organizer,
+            roles=roles,
+            channels=channels
+        )
+        # TODO: Line below should be done in class initialisation, but idk how
+        # to do that correctly with pydantic BaseModel classes.
+        # Maybe inherit from datamodel instead?
+        eventInstance.privateIndication = eventInstance.decodePrivate(
+            eventData['Color Code']
         )
 
         # Assign ID by posting message to discord and saving the returned ID

@@ -120,7 +120,7 @@ class EventSignupHandler(commands.Cog):
 
         # Add role/person with role to internal event object.
         if person is None:
-            person = event.Person(member.id, member.name)
+            person = event.Person(id=member.id, name=member.name)
             person.roles.append(orgEvent.roles['participant'])
             orgEvent.participants.append(person)
         else:

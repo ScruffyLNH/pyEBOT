@@ -75,7 +75,7 @@ class Person(BaseModel):
         return foundRole
 
 
-class Event:
+class Event(BaseModel):
     # TODO: Document this class when structure has been finalized.
 
     id: int = None

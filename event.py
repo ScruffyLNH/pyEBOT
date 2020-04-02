@@ -385,3 +385,8 @@ class Event(BaseModel):
             privateInd[self.keys[i]] = privateFlags[i]
 
         return privateInd
+
+
+class OrgEvents(BaseModel):
+
+    events: List[Event] = []

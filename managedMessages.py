@@ -9,7 +9,7 @@ class Message(BaseModel):
     last: bool = False
 
 
-class Commentor:
+class Commentor(BaseModel):
 
     id: int
     name: str

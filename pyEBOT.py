@@ -85,8 +85,7 @@ for filename in os.listdir('./cogs'):
 # sphinx documentation.
 
 # TODO: BEFORE BOT CAN BE INVITED TO OFFICIAL SERVER A NEW TOKEN MUST BE MADE
-#region Run client by passing in token # noqa
+# Get client token from file.
 token = loadData('token.json')
-
+# Run client by passing in token.
 client.run(token)
-#endregion # noqa

@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     # TODO: Deserialize orgEvent data.
     # Create empty list that will hold all the event objects
-    client.orgEvents = []
+    client.orgEvents = event.OrgEvents()
     # Instanciate managedMessages class and store in client.
     client.managedMessages = managedMessages.ManagedMessages()
     # client.orgEvents = loadData('eventData.pkl')

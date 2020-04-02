@@ -118,7 +118,10 @@ class ChannelModerator(commands.Cog):
         # TODO: Docstring
 
         # Instanciate a message object.
-        m = managedMessages.Message(botMessage.id, botMessage.content)
+        m = managedMessages.Message(
+            id=botMessage.id,
+            content=botMessage.content
+        )
 
         # Check if user exists in commentors list
         for commentor in self.client.managedMessages.commentors:
@@ -127,8 +130,8 @@ class ChannelModerator(commands.Cog):
                 break
         else:
             c = managedMessages.Commentor(
-                userMessage.author.id,
-                userMessage.author.name
+                id=userMessage.author.id,
+                name=userMessage.author.name
             )
             c.addMessage(m)
             self.client.managedMessages.addCommentor(c)

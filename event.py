@@ -1,6 +1,6 @@
 import discord
 from enum import Enum
-from typing import List
+from typing import List, Dict
 from pydantic import BaseModel
 from constants import Constants
 from datetime import datetime
@@ -80,10 +80,12 @@ class Event(BaseModel):
 
     id: int = None
     data: dict
+    dateAndTime: datetime = None  # TODO: Make the necessary changes in sdoaj oiahsdofh ao.
+    deadline: datetime = None
     keys: List[str]
     organizer: Person = None
-    roles: dict = {}
-    channels: List[Channel] = []
+    roles: Dict[str, Role] = {}
+    channels: Dict[str, Channel] = {}
     participants: List[Person] = []
     privateIndication: dict = {}
 

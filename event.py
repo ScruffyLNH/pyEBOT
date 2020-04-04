@@ -1,4 +1,7 @@
 import discord
+from enum import Enum
+from typing import List, Dict
+from pydantic import BaseModel
 from constants import Constants
 from datetime import datetime
 
@@ -8,27 +11,102 @@ class TestClass:
         self.cogData = cogData
 
 
-class Event:
-    # TODO: Document this class, when structure has been finalized.
+class EventRecord(BaseModel):
 
-    def __init__(
-        self, id, data, keys, organizer, roles, channels, participants
-    ):
-        self.id = id
-        self.data = data
-        self.keys = keys
-        self.organizer = organizer
-        self.roles = roles
-        self.channels = channels
-        self.participants = participants
+    eventId: int
+    eventName: str
 
-        # Background colors in GS is used to indicate whether or not a cell is
-        # private. Getting formatting info is not supported by the API so info
-        # on which cells are private are encoded to binary and stored in sheet
-        # along with all the other data. Information is decoded and applied to
-        # a copy of the data dictionary where the values are replaced by 1/0
-        # for all keys.
-        self.privateIndication = self.decodePrivate(data['Color Code'])
+
+class Role(BaseModel):
+
+    id: int
+    name: str
+
+
+class ChannelType(Enum):
+
+    text = 0
+    voice = 1
+    private = 2
+    group = 3
+    category = 4
+    news = 5
+    store = 6
+
+
+class Channel(BaseModel):
+
+    id: int
+    name: str
+    channelType: ChannelType
+
+
+class Person(BaseModel):
+
+    id: int
+    name: str
+    roles: List[Role] = []
+    ships: List[str] = []
+    events: List[EventRecord] = []
+
+    def getRole(self, id):
+        for role in self.roles:
+            if role.id == id:
+                return role
+                break
+        else:
+            return None
+
+    def removeRole(self, id):
+        """Removes role from Person object given a valid id, and returns it.
+        Also removes duplicates if they exist. In that case, the returned role
+        will be the last duplicate found. Returns None if role was not found.
+
+        :param id: Id of the role to be removed
+        :type id: int
+        """
+
+        indices = [i for i, role in enumerate(self.roles) if role.id == id]
+        foundRole = None
+        count = 0
+        for i in indices:
+            foundRole = self.roles.pop(i - count)
+            count += 1
+        return foundRole
+
+
+class Event(BaseModel):
+    # TODO: Document this class when structure has been finalized.
+
+    id: int = None
+    data: dict
+    dateAndTime: datetime = None
+    deadline: datetime = None
+    keys: List[str]
+    organizer: Person = None
+    roles: Dict[str, Role] = {}
+    channels: Dict[str, Channel] = {}
+    participants: List[Person] = []
+    privateIndication: dict = {}
+
+    # def __init__(
+    #     self, id, data, keys, organizer, roles, channels, participants
+    # ):
+    #     self.id = id
+    #     self.data = data
+    #     self.keys = keys
+    #     self.organizer = organizer
+    #     self.roles = roles
+    #     self.channels = channels
+    #     self.participants = participants
+
+    #     # Background colors in GS is used to indicate whether or not a cell is
+    #     # private. Getting formatting info is not supported by the API so info
+    #     # on which cells are private are encoded to binary and stored in sheet
+    #     # along with all the other data. Information is decoded and applied to
+    #     # a copy of the data dictionary where the values are replaced by 1/0
+    #     # for all keys.
+    #     self.privateIndication = self.decodePrivate(data['Color Code'])
 
     def getParticipant(self, id):
         for p in self.participants:
@@ -122,13 +200,13 @@ class Event:
             )
 
         # Check if event has a sign-up deadline.
-        if self.data['Deadline'] != '':
+        if self.deadline is not None:
             # Check if the sign-up deadline is classified.
             if privateIndication['Deadline']:
                 deadlineString = privateString
             else:
                 deadlineString = (
-                    self.data["Deadline"].strftime(Constants.DT_TEXT_PARSE)
+                    self.deadline.strftime(Constants.DT_TEXT_PARSE)
                 )
             preambleBuffer.append(
                 f':alarm_clock: **Registration Deadline**: {deadlineString}'
@@ -148,7 +226,7 @@ class Event:
         if privateIndication['Date Time']:
             dateTimeString = privateString
         else:
-            dateTimeString = self.data['Date Time'].strftime(
+            dateTimeString = self.dateAndTime.strftime(
                 Constants.DT_TEXT_PARSE
             )
         bodyBuffer.append(f':calendar: Date and Time: {dateTimeString}')
@@ -211,8 +289,8 @@ class Event:
         # footer.
         footerBuffer = []
 
-        if self.data['Deadline']:
-            if datetime.utcnow() > self.data['Deadline']:
+        if self.deadline is not None:
+            if datetime.utcnow() > self.deadline:
                 footerBuffer.append(f'\nRegistration has closed.\n')
 
         # TODO: Add text for what channel to use.
@@ -243,7 +321,7 @@ class Event:
             colour=Constants.EVENT_COLOR
         )
 
-        timeToEvent = self.data['Date Time'] - datetime.utcnow()
+        timeToEvent = self.dateAndTime - datetime.utcnow()
 
         if timeToEvent.days == 0:
             countdownString = 'Event kicking off today!'
@@ -311,90 +389,6 @@ class Event:
         return privateInd
 
 
-class Person:
+class OrgEvents(BaseModel):
 
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
-        self.roles = []
-        self.Ships = []
-        self.events = []
-
-    def getRole(self, id):
-        for role in self.roles:
-            if role.id == id:
-                return role
-                break
-        else:
-            return None
-
-    def removeRole(self, id):
-        """Removes role from Person object given a valid id, and returns it.
-        Also removes duplicates if they exist. In that case, the returned role
-        will be the last duplicate found. Returns None if role was not found.
-
-        :param id: Id of the role to be removed
-        :type id: int
-        """
-
-        indices = [i for i, role in enumerate(self.roles) if role.id == id]
-        foundRole = None
-        count = 0
-        for i in indices:
-            foundRole = self.roles.pop(i - count)
-            count += 1
-        return foundRole
-
-
-class EventRecord:
-
-    def __init__(self, eventId, eventName):
-        self.eventId = eventId
-        self.eventName = eventName
-        self.ships = []
-
-
-# If no channel is defined for an event class instance the default channel
-# in the discord message should be ---Central Lobby---.
-class Channel:
-
-    def __init__(self, name, id, channelType):
-        self.name = name
-        self.id = id
-        self.channelType = channelType
-
-
-class Role:
-    def __init__(self, name, id):
-        self.name = name
-        self.id = id
-
-
-class EventData:
-    # Strings to separate messages in discord
-    topString = '\n_ _'
-    bottomString = '_ _\n'
-
-    def __init__(self, messageId, rowData):
-        self.messageId = messageId
-        self.message = self.eventStringBuilder(rowData)
-        # self.participants = rowData['Participants']
-
-    @classmethod
-    def setTopString(cls, string):
-        cls.topString = string
-
-    @classmethod
-    def setBottomString(cls, string):
-        cls.bottomString = string
-
-    def eventStringBuilder(self, rowData):
-        outputString = (
-            f'{EventData.topString}\n'
-            # f'**Event Name: {rowData["Event"]}**\n'
-            # f'Date and Time: {rowData["Date"]}, {rowData["Time"]}\n'
-            # f'Description: {rowData["Description"]}\n'
-            # f'Participants (in order of signup)\n {rowData["Participants"]}'
-            f'{EventData.bottomString}\n'
-        )
-        return outputString
+    events: List[Event] = []

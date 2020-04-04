@@ -2,7 +2,9 @@ import discord # noqa
 import os
 import event
 import managedMessages
+from pydantic import ValidationError
 from utility import loadData
+from utility import saveData
 from constants import Constants
 from discord.ext import commands
 
@@ -19,22 +21,50 @@ if __name__ == "__main__":
     # Remove the default help command.
     client.remove_command('help')
 
-    # TODO: Deserialize orgEvent data.
-    # Create empty list that will hold all the event objects
-    client.orgEvents = []
-    # Instanciate managedMessages class and store in client.
-    client.managedMessages = managedMessages.ManagedMessages()
-    # client.orgEvents = loadData('eventData.pkl')
-    # if client.orgEvents is None:
-    #     client.orgEvents = []
-    #     print('No record found. Starting clean.')
-    # else:
-    #     # Check if all objects from loaded data are event.Event instances.
-    #     for item in client.orgEvents:
-    #         if not isinstance(item, event.Event):
-    #             client.orgEvents = []
-    #             print('Error in data file. Starting clean.')
-    #             break
+    # TODO: Refactor code to deserialize data function.
+    # Deserialize orgEvent data.
+    eventData = loadData('eventData.json')
+    # If eventData.json does not exist client.orgEvents will be
+    # initialized cleanly.
+    if eventData is None:
+        print('No event record found. Starting clean.')
+        client.orgEvents = event.OrgEvents()
+        eventData = client.orgEvents.json(indent=2)
+        saveData('eventData.json', eventData)
+    else:
+        try:
+            # Attempt to parse persistent data to orgEvents.
+            client.orgEvents = event.OrgEvents.parse_obj(
+                eventData
+            )
+            print(
+                'Event record successfully parsed.\n'
+                f'Found {len(client.orgEvents.events)} events.'
+            )
+        except ValidationError as e:
+            print('Record was found, but could not be loaded.')
+            print(e)
+            print('\n Starting clean.')
+            # TODO: Clean up wet code.
+            client.orgEvents = event.OrgEvents()
+            eventData = client.orgEvents.json(indent=2)
+            saveData('eventData.json', eventData)
+
+    messageData = loadData('messageData.json')
+    if messageData is None:
+        print('No message data found.')
+        client.managedMessages = managedMessages.ManagedMessages()
+        messageData = client.managedMessages.json(indent=2)
+        saveData('messageData.json', messageData)
+    else:
+        try:
+            client.managedMessages = managedMessages.ManagedMessages.parse_obj(
+                 messageData
+            )
+            print('Message data successfully parsed.')
+        except ValidationError as e:
+            print('Message record was found, but could not be loaded.')
+            print(e)
 
 
 # Check functions
@@ -85,8 +115,7 @@ for filename in os.listdir('./cogs'):
 # sphinx documentation.
 
 # TODO: BEFORE BOT CAN BE INVITED TO OFFICIAL SERVER A NEW TOKEN MUST BE MADE
-#region Run client by passing in token # noqa
+# Get client token from file.
 token = loadData('token.json')
-
+# Run client by passing in token.
 client.run(token)
-#endregion # noqa

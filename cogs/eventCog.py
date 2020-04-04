@@ -3,6 +3,7 @@ import sheets
 import asyncio
 import event
 import gspread
+import utility
 from datetime import datetime
 from constants import Constants
 from discord.ext import tasks, commands
@@ -45,7 +46,7 @@ class EventCog(commands.Cog):
         # Parse data from google sheets to event data.
         parsedData = self.parseEventData(sheetData)
 
-        # Process each event by instanciation event objects and posting
+        # Process each event by instanciating event objects and posting
         # event messages to discord.
         for eventData in parsedData:
             await self.client.loop.create_task(
@@ -58,9 +59,6 @@ class EventCog(commands.Cog):
     # Methods
     def parseEventData(self, eventData):
         # TODO: docstring...
-
-        # Convert the dates from string to datetime objects
-        eventData = self.convertDates(eventData, 'Date Time', 'Deadline')
 
         # Filter out events that already exist. (Existing eventswill have an
         # id.)
@@ -95,22 +93,34 @@ class EventCog(commands.Cog):
         # Check if the organizer exists in the member list.
         for member in members:
             if eventData['Organizer'] == member.display_name:
-                p = event.Person(member.id, member.display_name)
+                p = event.Person(id=member.id, name=member.display_name)
                 break
         else:
             # Defaults to event manager if another organizer was not found.
             member = self.client.get_user(Constants.EVENT_MANAGER_ID)
-            p = event.Person(member.id, member.display_name)
+            p = event.Person(id=member.id, name=member.display_name)
 
         return p
 
     def sortEvents(self, events):
         # TODO: Docstring...
 
+        # Add temporary key that holds the converted date as datetime obj.
+        for e in events:
+            date = self.convertDates(e, 'Date Time')[0]
+            if date is None:
+                date = datetime.utcnow()
+            e['formattedDt'] = date
+
+        # TODO: Now that culprit has been found try to revert back to lambda
+        # arbitrary evaluated value
+
         if events is not None:
             sortedEvents = sorted(
-                events, key=lambda d: d['Date Time']
+                events, key=lambda d: d['formattedDt']
             )
+            # Remove temporary key used for sorting.
+            [e.pop('formattedDt') for e in sortedEvents]
             return sortedEvents
         else:
             return []
@@ -127,17 +137,33 @@ class EventCog(commands.Cog):
         will be an empty string.
         :rtype: List of dictionary
         """
-        for i in range(len(sheetData)):  # TODO: 💩
-            if sheetData is not None:
-                for key in keys:
-                    try:
-                        sheetData[i][key] = datetime.strptime(
-                            sheetData[i][key], Constants.DT_SHEET_PARSE
-                        )
-                    # datetime.strptime raises value error if conversion fails.
-                    except ValueError:
-                        sheetData[i][key] = ''
-        return sheetData
+
+        # TODO: Catch exception and drop event if data could not be parsed.
+        dates = []
+        # Convert values of specified keys and append to dates list using list
+        # comprehension.
+
+        for key in keys:
+            try:
+                dates.append(
+                    datetime.strptime(sheetData[key], Constants.DT_SHEET_PARSE)
+                )
+            except ValueError:
+                dates.append(None)
+
+        # for i in range(len(sheetData)):  # TODO: 💩
+        #     if sheetData is not None:
+        #         for key in keys:
+        #             try:
+        #                 sheetData[i][key] = datetime.strptime(
+        #                     sheetData[i][key], Constants.DT_SHEET_PARSE
+        #                 )
+        #             # datetime.strptime raises value error if conversion fails.
+        #             except ValueError:
+        #                 sheetData[i][key] = ''
+
+        # Return items in dates list as a tuple.
+        return tuple(dates)
 
     def checkId(self, sheetData):
         """Checks if an ID has been assigned to each event entry. If not the
@@ -276,7 +302,7 @@ class EventCog(commands.Cog):
         # Get the number of category channels already created from previous
         # events.
         numCategoryChannels = sum(
-            len(e.roles) != 0 for e in self.client.orgEvents
+            len(e.roles) != 0 for e in self.client.orgEvents.events
         )
         # Set the position to underneath the last crated event category
         # channel, or under Events category if none exist.
@@ -332,12 +358,12 @@ class EventCog(commands.Cog):
         if discordRoles:
             roles = {
                 'spectator': event.Role(
-                    discordRoles['spectator'].name,
-                    discordRoles['spectator'].id
+                    id=discordRoles['spectator'].id,
+                    name=discordRoles['spectator'].name
                 ),
                 'participant': event.Role(
-                    discordRoles['participant'].name,
-                    discordRoles['participant'].id
+                    id=discordRoles['participant'].id,
+                    name=discordRoles['participant'].name
                 )
             }
         else:
@@ -349,14 +375,31 @@ class EventCog(commands.Cog):
         channels = {}
         for key, channel in discordChannels.items():
             channels[key] = event.Channel(
-                channel.name,
-                channel.id,
-                str(channel.type)
+                id=channel.id,
+                name=channel.name,
+                channelType=event.ChannelType(channel.type.value)
             )
+
+        # Convert the dates from string to datetime objects
+        dateAndTime, deadline = self.convertDates(
+            eventData, 'Date Time', 'Deadline'
+        )
 
         # Instanciate event object.
         eventInstance = event.Event(
-            None, eventData, keys, organizer, roles, channels, []
+            data=eventData,
+            dateAndTime=dateAndTime,
+            Deadline=deadline,
+            keys=keys,
+            organizer=organizer,
+            roles=roles,
+            channels=channels
+        )
+        # TODO: Line below should be done in class initialisation, but idk how
+        # to do that correctly with pydantic BaseModel classes.
+        # Maybe inherit from datamodel instead?
+        eventInstance.privateIndication = eventInstance.decodePrivate(
+            eventData['Color Code']
         )
 
         # Assign ID by posting message to discord and saving the returned ID
@@ -391,7 +434,10 @@ class EventCog(commands.Cog):
         self.writeIdToSheets(eventInstance)
 
         # Append the event to the clients list of events
-        self.client.orgEvents.append(registeredEvent)
+        self.client.orgEvents.events.append(registeredEvent)
+        utility.saveData(
+            'eventData.json', self.client.orgEvents.json(indent=2)
+        )
 
     # async def postToDiscord(self, orgEvent):  # ##############
     #     """Takes eventData objects and posts it to discord generating an id.

@@ -79,7 +79,7 @@ class DevTools(commands.Cog):
         categoryChannels = []
 
         # Delete all roles and channels.
-        for orgEvent in self.client.orgEvents:
+        for orgEvent in self.client.orgEvents.events:
             for role in orgEvent.roles.values():
                 dRole = guild.get_role(role.id)
                 await dRole.delete()
@@ -96,7 +96,7 @@ class DevTools(commands.Cog):
             await dChannel.delete()
 
         # Delete all embed messages.
-        for orgEvent in self.client.orgEvents:
+        for orgEvent in self.client.orgEvents.events:
             msg = await signupChannel.fetch_message(orgEvent.id)
             await msg.delete()
 

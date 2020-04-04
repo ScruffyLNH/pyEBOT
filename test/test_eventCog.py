@@ -255,16 +255,21 @@ class TestEventCog(unittest.TestCase):
         self.assertEqual(len(self.unsortedEvents), len(ret))
 
     # ConvertDates tests
-    def test_convertDates_returnIsSameLengthAsInput(self):
+    def test_convertDates_returnIsSameLengthAsNumberOfSearchKeys(self):
         ec = eventCog.EventCog(self.client)
-        ret = ec.convertDates(self.eventData, 'Date Time', 'Deadline')
-        self.assertEqual(len(self.eventData), len(ret))
+        ret = ec.convertDates(self.eventData[0], 'Date Time', 'Deadline')
+        self.assertEqual(2, len(ret))
 
     def test_convertDates_returnTypeIsTimeDate(self):
         ec = eventCog.EventCog(self.client)
-        ret = ec.convertDates(self.eventData, 'Date Time', 'Deadline')
-        self.assertIsInstance(ret[0]['Date Time'], datetime.datetime)
-        self.assertIsInstance(ret[0]['Deadline'], datetime.datetime)
+        ret = ec.convertDates(self.eventData[0], 'Date Time', 'Deadline')
+        self.assertIsInstance(ret[0], datetime.datetime)
+        self.assertIsInstance(ret[1], datetime.datetime)
+
+    def test_convertDates_returnIsNoneForInvalidDate(self):
+        ec = eventCog.EventCog(self.client)
+        ret = ec.convertDates(self.eventData[1], 'Date Time', 'Deadline')
+        self.assertIsNone(ret[1])
 
     # CheckId tests
     def test_checkId_indexIsCorrect(self):

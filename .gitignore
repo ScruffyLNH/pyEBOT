@@ -16,8 +16,9 @@ env/*
 # Edit at https://www.gitignore.io/?templates=python,visualstudiocode
 
 ### Python ###
-# Pickle files (serialized data)
-*.pkl
+# Serialized data
+eventData.json
+messageData.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

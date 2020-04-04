@@ -25,13 +25,13 @@ class Role(BaseModel):
 
 class ChannelType(Enum):
 
-    text = 1
-    voice = 2
-    private = 3
-    group = 4
-    category = 5
-    news = 6
-    store = 7
+    text = 0
+    voice = 1
+    private = 2
+    group = 3
+    category = 4
+    news = 5
+    store = 6
 
 
 class Channel(BaseModel):

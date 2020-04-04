@@ -235,7 +235,7 @@ class EventSignupHandler(commands.Cog):
         return orgEvent, member, message, memberRole, emoji
 
     def getEvent(self, id):
-        for orgEvent in self.client.orgEvents:
+        for orgEvent in self.client.orgEvents.events:
             if orgEvent.id == id:
                 return orgEvent
                 break

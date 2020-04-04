@@ -21,7 +21,6 @@ if __name__ == "__main__":
     # Remove the default help command.
     client.remove_command('help')
 
-
     # TODO: Refactor code to deserialize data function.
     # Deserialize orgEvent data.
     eventData = loadData('eventData.json')
@@ -40,7 +39,7 @@ if __name__ == "__main__":
             )
             print(
                 'Event record successfully parsed.\n'
-                f'Found {len(client.orgEvents)} events.'
+                f'Found {len(client.orgEvents.events)} events.'
             )
         except ValidationError as e:
             print('Record was found, but could not be loaded.')

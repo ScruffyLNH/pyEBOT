@@ -276,7 +276,7 @@ class EventCog(commands.Cog):
         # Get the number of category channels already created from previous
         # events.
         numCategoryChannels = sum(
-            len(e.roles) != 0 for e in self.client.orgEvents
+            len(e.roles) != 0 for e in self.client.orgEvents.events
         )
         # Set the position to underneath the last crated event category
         # channel, or under Events category if none exist.
@@ -401,7 +401,7 @@ class EventCog(commands.Cog):
         self.writeIdToSheets(eventInstance)
 
         # Append the event to the clients list of events
-        self.client.orgEvents.append(registeredEvent)
+        self.client.orgEvents.events.append(registeredEvent)
 
     # async def postToDiscord(self, orgEvent):  # ##############
     #     """Takes eventData objects and posts it to discord generating an id.

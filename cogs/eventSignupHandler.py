@@ -120,22 +120,38 @@ class EventSignupHandler(commands.Cog):
         # the embed.
 
         # Add role/person with role to internal event object.
+        if 'participant' in orgEvent.roles.keys():
+            pRole = orgEvent.roles['participant']
+        else:
+            pRole = None
+
         if person is None:
             person = event.Person(id=member.id, name=member.name)
-            person.roles.append(orgEvent.roles['participant'])
             orgEvent.participants.append(person)
-        else:
-            person.roles.append(orgEvent.roles['participant'])
-        # TODO: Serialize data here.
+
+        if pRole is not None:
+            person.roles.append(pRole)
+
+        # if person is None:
+        #     person = event.Person(id=member.id, name=member.name)
+        #     if pRole:
+        #         person.roles.append(pRole)
+        #     orgEvent.participants.append(person)
+        # elif pRole:
+        #     person.roles.append(orgEvent.roles['participant'])
 
         # Add discord role.
-        await self.addDiscordRole(member, orgEvent.roles['participant'])
+        if pRole is not None:
+            await self.addDiscordRole(member, orgEvent.roles['participant'])
 
         # Serialize data.
-        utility.saveData('eventData.json', self.client.orgEvents)
+        utility.saveData(
+            'eventData.json', self.client.orgEvents.json(indent=2)
+        )
 
         # Print welcome message to the discussion channel.
-        await self.sendWelcomeMsg(member, orgEvent.channels['discussion'])
+        if 'discussion' in orgEvent.channels.keys():
+            await self.sendWelcomeMsg(member, orgEvent.channels['discussion'])
 
         # TODO: Update the embed.
 
@@ -200,13 +216,14 @@ class EventSignupHandler(commands.Cog):
 
         # Check if user already has the role.
         person = orgEvent.getParticipant(member.id)
-        if person.getRole(orgEvent.roles['participant'].id) is not None:
-            await member.send(
-                'Hmm, you seem to already be registered for the event.'
-                ' Strange. :shrug:',
-                delete_after=60.0
-            )
-            return True
+        if 'participant' in orgEvent.roles.keys():
+            if person.getRole(orgEvent.roles['participant'].id) is not None:
+                await member.send(
+                    'Hmm, you seem to already be registered for the event.'
+                    ' Strange. :shrug:',
+                    delete_after=60.0
+                )
+                return True
         return False
 
     async def addDiscordRole(self, member, role):

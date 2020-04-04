@@ -64,6 +64,9 @@ class EventSignupHandler(commands.Cog):
             person = orgEvent.getParticipant(member.id)
             if person:
                 person.removeRole(roleId)
+            utility.saveData(
+                'eventData.json', self.client.orgEvents.json(indent=2)
+            )
 
     async def handleParticipationRequest(self, payload):
         """

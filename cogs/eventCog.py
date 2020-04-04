@@ -59,9 +59,6 @@ class EventCog(commands.Cog):
     def parseEventData(self, eventData):
         # TODO: docstring...
 
-        # Convert the dates from string to datetime objects
-        eventData = self.convertDates(eventData, 'Date Time', 'Deadline')
-
         # Filter out events that already exist. (Existing eventswill have an
         # id.)
         unregisteredEvents = self.checkId(eventData)
@@ -107,10 +104,22 @@ class EventCog(commands.Cog):
     def sortEvents(self, events):
         # TODO: Docstring...
 
+        # Add temporary key that holds the converted date as datetime obj.
+        for e in events:
+            date = self.convertDates(e, 'Date Time')[0]
+            if date is None:
+                date = datetime.utcnow()
+            e['formattedDt'] = date
+
+        # TODO: Now that culprit has been found try to revert back to lambda
+        # arbitrary evaluated value
+
         if events is not None:
             sortedEvents = sorted(
-                events, key=lambda d: d['Date Time']
+                events, key=lambda d: d['formattedDt']
             )
+            # Remove temporary key used for sorting.
+            [e.pop('formattedDt') for e in sortedEvents]
             return sortedEvents
         else:
             return []
@@ -127,17 +136,33 @@ class EventCog(commands.Cog):
         will be an empty string.
         :rtype: List of dictionary
         """
-        for i in range(len(sheetData)):  # TODO: 💩
-            if sheetData is not None:
-                for key in keys:
-                    try:
-                        sheetData[i][key] = datetime.strptime(
-                            sheetData[i][key], Constants.DT_SHEET_PARSE
-                        )
-                    # datetime.strptime raises value error if conversion fails.
-                    except ValueError:
-                        sheetData[i][key] = ''
-        return sheetData
+
+        # TODO: Catch exception and drop event if data could not be parsed.
+        dates = []
+        # Convert values of specified keys and append to dates list using list
+        # comprehension.
+
+        for key in keys:
+            try:
+                dates.append(
+                    datetime.strptime(sheetData[key], Constants.DT_SHEET_PARSE)
+                )
+            except ValueError:
+                dates.append(None)
+
+        # for i in range(len(sheetData)):  # TODO: 💩
+        #     if sheetData is not None:
+        #         for key in keys:
+        #             try:
+        #                 sheetData[i][key] = datetime.strptime(
+        #                     sheetData[i][key], Constants.DT_SHEET_PARSE
+        #                 )
+        #             # datetime.strptime raises value error if conversion fails.
+        #             except ValueError:
+        #                 sheetData[i][key] = ''
+
+        # Return items in dates list as a tuple.
+        return tuple(dates)
 
     def checkId(self, sheetData):
         """Checks if an ID has been assigned to each event entry. If not the
@@ -351,12 +376,17 @@ class EventCog(commands.Cog):
             channels[key] = event.Channel(
                 id=channel.id,
                 name=channel.name,
-                channelType=channel.type  #TODO: CHECK THIS ............................................................................
-            )
+
+        # Convert the dates from string to datetime objects
+        dateAndTime, deadline = self.convertDates(
+            eventData, 'Date Time', 'Deadline'
+        )
 
         # Instanciate event object.
         eventInstance = event.Event(
             data=eventData,
+            dateAndTime=dateAndTime,
+            Deadline=deadline,
             keys=keys,
             organizer=organizer,
             roles=roles,

@@ -143,7 +143,7 @@ class EventSignupHandler(commands.Cog):
 
         # Check if event has passed.
         currentTime = datetime.utcnow()
-        if currentTime > orgEvent.data['Date Time']:
+        if currentTime > orgEvent.dateAndTime:
             await member.send(
                 'Sorry, you\'d need a time machine to join this event.',
                 delete_after=60.0
@@ -160,8 +160,8 @@ class EventSignupHandler(commands.Cog):
 
         # Check if deadline has passed.
         currentTime = datetime.utcnow()
-        if orgEvent.data['Deadline'] != '':
-            if currentTime > orgEvent.data['Deadline']:
+        if orgEvent.deadline is not None:
+            if currentTime > orgEvent.deadline:
                 await member.send(
                     'Sorry, signup deadline has passed.',
                     delete_after=60.0

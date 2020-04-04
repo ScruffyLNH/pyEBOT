@@ -80,7 +80,7 @@ class Event(BaseModel):
 
     id: int = None
     data: dict
-    dateAndTime: datetime = None  # TODO: Make the necessary changes in sdoaj oiahsdofh ao.
+    dateAndTime: datetime = None
     deadline: datetime = None
     keys: List[str]
     organizer: Person = None
@@ -200,13 +200,13 @@ class Event(BaseModel):
             )
 
         # Check if event has a sign-up deadline.
-        if self.data['Deadline'] != '':
+        if self.deadline is not None:
             # Check if the sign-up deadline is classified.
             if privateIndication['Deadline']:
                 deadlineString = privateString
             else:
                 deadlineString = (
-                    self.data["Deadline"].strftime(Constants.DT_TEXT_PARSE)
+                    self.deadline.strftime(Constants.DT_TEXT_PARSE)
                 )
             preambleBuffer.append(
                 f':alarm_clock: **Registration Deadline**: {deadlineString}'
@@ -226,7 +226,7 @@ class Event(BaseModel):
         if privateIndication['Date Time']:
             dateTimeString = privateString
         else:
-            dateTimeString = self.data['Date Time'].strftime(
+            dateTimeString = self.dateAndTime.strftime(
                 Constants.DT_TEXT_PARSE
             )
         bodyBuffer.append(f':calendar: Date and Time: {dateTimeString}')
@@ -289,8 +289,8 @@ class Event(BaseModel):
         # footer.
         footerBuffer = []
 
-        if self.data['Deadline']:
-            if datetime.utcnow() > self.data['Deadline']:
+        if self.deadline is not None:
+            if datetime.utcnow() > self.deadline:
                 footerBuffer.append(f'\nRegistration has closed.\n')
 
         # TODO: Add text for what channel to use.
@@ -321,7 +321,7 @@ class Event(BaseModel):
             colour=Constants.EVENT_COLOR
         )
 
-        timeToEvent = self.data['Date Time'] - datetime.utcnow()
+        timeToEvent = self.dateAndTime - datetime.utcnow()
 
         if timeToEvent.days == 0:
             countdownString = 'Event kicking off today!'

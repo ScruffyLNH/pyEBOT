@@ -435,7 +435,9 @@ class EventCog(commands.Cog):
 
         # Append the event to the clients list of events
         self.client.orgEvents.events.append(registeredEvent)
-        utility.saveData('eventData.json', self.client.orgEvents.json())
+        utility.saveData(
+            'eventData.json', self.client.orgEvents.json(indent=2)
+        )
 
     # async def postToDiscord(self, orgEvent):  # ##############
     #     """Takes eventData objects and posts it to discord generating an id.

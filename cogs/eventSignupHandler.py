@@ -34,7 +34,7 @@ class EventSignupHandler(commands.Cog):
             await self.handleParticipationRequest(payload)
 
         if payload.emoji.name == Constants.REACTION_EMOJIS['spectator']:
-            await self.handleSpectatorRequest()
+            await self.handleSpectatorRequest()  # TODO: Make handleSpectatorRequest method.
 
         # If private event check if user is member.
         # Instanciate user and add to client.orgEvents.

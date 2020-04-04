@@ -31,7 +31,7 @@ if __name__ == "__main__":
         print('No event record found. Starting clean.')
         client.orgEvents = event.OrgEvents()
         eventData = client.orgEvents.json(indent=2)
-        saveData('eventData.json')
+        saveData('eventData.json', eventData)
     else:
         try:
             # Attempt to parse persistent data to orgEvents.

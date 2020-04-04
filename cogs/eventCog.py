@@ -3,6 +3,7 @@ import sheets
 import asyncio
 import event
 import gspread
+import utility
 from datetime import datetime
 from constants import Constants
 from discord.ext import tasks, commands
@@ -376,6 +377,8 @@ class EventCog(commands.Cog):
             channels[key] = event.Channel(
                 id=channel.id,
                 name=channel.name,
+                channelType=event.ChannelType(channel.type.value)
+            )
 
         # Convert the dates from string to datetime objects
         dateAndTime, deadline = self.convertDates(
@@ -432,6 +435,7 @@ class EventCog(commands.Cog):
 
         # Append the event to the clients list of events
         self.client.orgEvents.events.append(registeredEvent)
+        utility.saveData('eventData.json', self.client.orgEvents.json())
 
     # async def postToDiscord(self, orgEvent):  # ##############
     #     """Takes eventData objects and posts it to discord generating an id.

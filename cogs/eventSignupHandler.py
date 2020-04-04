@@ -1,6 +1,7 @@
 import discord # noqa
 from constants import Constants
 import event
+import utility
 from datetime import datetime
 from discord.ext import commands
 
@@ -129,6 +130,9 @@ class EventSignupHandler(commands.Cog):
 
         # Add discord role.
         await self.addDiscordRole(member, orgEvent.roles['participant'])
+
+        # Serialize data.
+        utility.saveData('eventData.json', self.client.orgEvents)
 
         # Print welcome message to the discussion channel.
         await self.sendWelcomeMsg(member, orgEvent.channels['discussion'])

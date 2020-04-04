@@ -35,7 +35,7 @@ if __name__ == "__main__":
     else:
         try:
             # Attempt to parse persistent data to orgEvents.
-            client.orgEvents = event.OrgEvents.parse_raw(
+            client.orgEvents = event.OrgEvents.parse_obj(
                 eventData
             )
             print(
@@ -59,7 +59,7 @@ if __name__ == "__main__":
         saveData('messageData.json', messageData)
     else:
         try:
-            client.managedMessages = managedMessages.ManagedMessages.parse_raw(
+            client.managedMessages = managedMessages.ManagedMessages.parse_obj(
                  messageData
             )
             print('Message data successfully parsed.')

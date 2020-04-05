@@ -9,6 +9,7 @@ class Updater(commands.Cog):
     def __init__(self, client):
         # TODO: DOCUMENT INIT
         self.client = client
+        self.prevOrgEvents = self.client.orgEvents
 
         try:
             self.updateChecking.start()
@@ -18,6 +19,17 @@ class Updater(commands.Cog):
     def cog_unload(self):
 
         self.updateChecking.cancel()
+
+    # Methods
+    def checkForChanges(self):
+        """Checks for differences between last event update and
+        the clients events
+
+        Returns the event for which the change took place, 
+        Ignores changes to the header message stating the
+        time until event as that is handled by another loop.
+        """
+        pass
 
     @tasks.loop(seconds=9)
     async def updateChecking(self):

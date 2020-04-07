@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 import event
 
 
@@ -56,7 +57,6 @@ class TestEvent(unittest.TestCase):
         pass
 
     # Tests
-
     # Event class tests
     # getParticipant tests
     def test_getParticipant_returnIsPersonObjectForValidId(self):
@@ -65,7 +65,8 @@ class TestEvent(unittest.TestCase):
             id=999,
             data=self.eventData,
             keys=self.keys,
-            participants=[participant]
+            participants=[participant],
+            lastUpdate=datetime.utcnow()
         )
         ret = eventInstance.getParticipant(123456789)
         self.assertIsInstance(ret, event.Person)
@@ -78,7 +79,8 @@ class TestEvent(unittest.TestCase):
             keys=self.keys,
             roles={},
             channels=[],
-            participants=[participant]
+            participants=[participant],
+            lastUpdate=datetime.utcnow()
         )
         ret = eventInstance.getParticipant(12345555)
         self.assertIsNone(ret)

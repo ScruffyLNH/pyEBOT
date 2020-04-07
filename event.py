@@ -88,6 +88,7 @@ class Event(BaseModel):
     channels: Dict[str, Channel] = {}
     participants: List[Person] = []
     privateIndication: dict = {}
+    lastUpdate: datetime
 
     # def __init__(
     #     self, id, data, keys, organizer, roles, channels, participants

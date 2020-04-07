@@ -393,3 +393,9 @@ class Event(BaseModel):
 class OrgEvents(BaseModel):
 
     events: List[Event] = []
+
+    def getEvent(self, id):
+        for event in self.events:
+            if event.id == id:
+                return id
+        return None

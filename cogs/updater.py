@@ -1,6 +1,8 @@
 import discord # noqa
 import asyncio
 import copy
+from constants import Constants
+from datetime import datetime
 from discord.ext import tasks, commands
 
 
@@ -34,36 +36,104 @@ class Updater(commands.Cog):
 
         pass
 
+    async def updateEmbed(self, event):
+
+        oldEvent = next(
+            (e for e in self.prevOrgEvents.events if e.id == event.id),
+            None
+        )
+
+        channel = self.client.get_channel(Constants.MAIN_CHANNEL_ID)
+        msg = await channel.fetch_message(event.id)
+
+        # Get the discord user object for the event organizer.
+        user = self.client.get_user(event.organizer.id)
+
+        embed = event.makeEmbed(True, user)
+
+        await msg.edit(embed=embed)
+
+        if oldEvent is not None:
+            oldEvent.lastUpdate = datetime.utcnow()
+        else:
+            oldEvent = copy.deepcopy(event)
+            oldEvent.lastUpdate = datetime.utcnow()
+            self.prevOrgEvents.events.append(oldEvent)
+
     @tasks.loop(seconds=13)
     async def updateChecking(self):
 
-        # Make a list with all event ids from updated events. List items
-        # will be removed as they are found leaving a list of untracked ids.
-        remainingEventIds = [e.id for e in self.client.orgEvents.events]
+        # Make a copy of the up to date events list to check witch are tracked.
+        # List items will be removed as they are found leaving a list of
+        # untracked events.
+        remainingEvents = copy.deepcopy(self.client.orgEvents.events)
 
+        matchedEvents = []
         for event in self.prevOrgEvents.events:
 
             # Find matching event from the updated events by comparing ids.
+            # eventMatch will be None if match was not found.
             eventMatch = next(
-                (e for e in self.prevOrgEvents.events if e.id == event), None
+                (e for e in self.client.orgEvents.events if e.id == event.id),
+                None
             )
 
-            matchedEvents = []
+            # Remove found events from remainingEvents
+            [remainingEvents.remove(e) for e in remainingEvents
+             if e.id == event.id]
+
             if eventMatch is None:
-                # Destroy the old event if matching event was not found.
-                del(event)
+                # Remove the old event if matching event was not found.
+                self.prevOrgEvents.events.remove(event)
             else:
-                # Remove found event id from list.
-                remainingEventIds.remove(event.id)
 
                 matchedEvent = {
-                    'old': event.makeEmbed(True, event.organizer.id),
-                    'new': eventMatch.makeEmbed(True, eventMatch.organizer.id)
+                    'old': event,  # .makeEmbed(True, event.organizer.id),
+                    'new': eventMatch  # .makeEmbed(True, eventMatch.organizer.id)
                 }
                 matchedEvents.append(matchedEvent)
 
-        for id in remainingEventIds:
-            
+        # Add the untracked events to tracking list.
+        [self.prevOrgEvents.append(e) for e in remainingEvents]
+
+        # Run through all event matches and update embed if required.
+        for eventMatch in matchedEvents:
+
+            # Create bool to determine if embed should be updated.
+            # any check discovering update is needed will set update to True.
+            update = False
+
+            # Get the number of hours since last update.
+            hoursSinceUpdate = (
+                datetime.utcnow() - eventMatch['old'].lastUpdate
+            ).total_seconds() / 3600.0
+
+            # If last update was longer than 2 hours ago event will be updated.
+            if hoursSinceUpdate > 2.0:
+                update = True
+
+            oldUser = self.client.get_user(eventMatch['old'].organizer.id)
+            newUser = self.client.get_user(eventMatch['new'].organizer.id)
+            # Make new and old embeds for comparison.
+            oldEmbed = eventMatch['old'].makeEmbed(True, oldUser)
+            newEmbed = eventMatch['new'].makeEmbed(True, newUser)
+
+            # Check if description has changed.
+            if oldEmbed.description != newEmbed.description:
+                update = True
+
+            # Check if footer has changed. (Means change in participants.)
+            if oldEmbed.footer != newEmbed.footer:
+                update = True
+
+            # Check if embed footer has changed.
+
+            print(hoursSinceUpdate)  #TODO: Remove print statement
+
+            if update:
+                await self.client.loop.create_task(
+                    self.updateEmbed(eventMatch['new'])
+                )
 
 
         # Create a new embed message from data in orgEvents

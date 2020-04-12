@@ -274,6 +274,15 @@ class EventSignupHandler(commands.Cog):
         else:
             return False
 
+    def makeUpdate(self, event):
+        self.client.loop.create_task(
+            self.runUpdate(event)
+        )
+
+    async def runUpdate(self, event):
+        cog = self.client.get_cog('Updater')
+        await cog.updateEmbed(event)
+
 
 def setup(client):
     client.add_cog(EventSignupHandler(client))

@@ -38,11 +38,6 @@ class Updater(commands.Cog):
 
     async def updateEmbed(self, event):
 
-        oldEvent = next(
-            (e for e in self.prevOrgEvents.events if e.id == event.id),
-            None
-        )
-
         channel = self.client.get_channel(Constants.MAIN_CHANNEL_ID)
         msg = await channel.fetch_message(event.id)
 
@@ -53,16 +48,21 @@ class Updater(commands.Cog):
 
         await msg.edit(embed=embed)
 
-        if oldEvent is not None:
-            oldEvent.lastUpdate = datetime.utcnow()
+        event.lastUpdate = datetime.utcnow()
+
+        # Update previous events
+        for oldEvent in self.prevOrgEvents.events:
+            if oldEvent.id == event.id:
+                index = self.prevOrgEvents.events.index(oldEvent)
+                self.prevOrgEvents.events[index] = copy.deepcopy(event)
+                break
         else:
-            oldEvent = copy.deepcopy(event)
-            oldEvent.lastUpdate = datetime.utcnow()
-            self.prevOrgEvents.events.append(oldEvent)
+            self.prevOrgEvents.events.append(event)
 
     @tasks.loop(seconds=13)
     async def updateChecking(self):
 
+        print('Checking...')
         # Make a copy of the up to date events list to check witch are tracked.
         # List items will be removed as they are found leaving a list of
         # untracked events.
@@ -94,7 +94,7 @@ class Updater(commands.Cog):
                 matchedEvents.append(matchedEvent)
 
         # Add the untracked events to tracking list.
-        [self.prevOrgEvents.append(e) for e in remainingEvents]
+        [self.prevOrgEvents.events.append(e) for e in remainingEvents]
 
         # Run through all event matches and update embed if required.
         for eventMatch in matchedEvents:
@@ -123,12 +123,12 @@ class Updater(commands.Cog):
                 update = True
 
             # Check if footer has changed. (Means change in participants.)
-            if oldEmbed.footer != newEmbed.footer:
+            if oldEmbed.footer.text != newEmbed.footer.text:
                 update = True
 
             # Check if embed footer has changed.
 
-            print(hoursSinceUpdate)  #TODO: Remove print statement
+            print(hoursSinceUpdate)  # TODO: Remove print statement
 
             if update:
                 await self.client.loop.create_task(

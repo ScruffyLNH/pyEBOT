@@ -48,6 +48,7 @@ class Person(BaseModel):
     roles: List[Role] = []
     ships: List[str] = []
     events: List[EventRecord] = []
+    active: bool = True
 
     def getRole(self, id):
         for role in self.roles:
@@ -298,9 +299,9 @@ class Event(BaseModel):
         # TODO: Add organizer in description of embed.
 
         if self.participants is not None:
-            footerBuffer.append('Participants: (In chronological order).')
+            footerBuffer.append('Participants: (In chronological order). ')
             # Get the name of every participant and put it in a list.
-            people = [p.name for p in self.participants]
+            people = [p.name for p in self.participants if p.active]
             # Add string with all names separated with a comma to the buffer.
             footerBuffer.append(f'{", ".join(people)}')
 

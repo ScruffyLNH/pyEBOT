@@ -56,17 +56,23 @@ class EventSignupHandler(commands.Cog):
         # Get the user who reacted
         member = guild.get_member(payload.user_id)
 
-        if orgEvent.roles:
-            roleId = orgEvent.roles['participant'].id
-            participantRole = guild.get_role(roleId)
-            await member.remove_roles(participantRole)
-
-            person = orgEvent.getParticipant(member.id)
-            if person:
+        person = orgEvent.getParticipant(member.id)
+        if person is not None:
+            person.active = False
+            if person.roles:
+                roleId = orgEvent.roles['participant'].id
                 person.removeRole(roleId)
-            utility.saveData(
-                'eventData.json', self.client.orgEvents.json(indent=2)
-            )
+
+                # Get the discord role.
+                participantRole = guild.get_role(roleId)
+                await member.remove_roles(participantRole)
+
+        utility.saveData(
+            'eventData.json', self.client.orgEvents.json(indent=2)
+        )
+
+        # Update embed in discord.
+        self.makeUpdate(orgEvent)
 
     async def handleParticipationRequest(self, payload):
         """
@@ -115,6 +121,7 @@ class EventSignupHandler(commands.Cog):
         # Attempt to get person object
         person = orgEvent.getParticipant(member.id)
         if person is not None:
+            person.active = True
             # Check if user already has role, handle rejection if necessary.
             if await self.userAlreadyHasRole(data):
                 return
@@ -129,7 +136,7 @@ class EventSignupHandler(commands.Cog):
             pRole = None
 
         if person is None:
-            person = event.Person(id=member.id, name=member.name)
+            person = event.Person(id=member.id, name=member.name, active=True)
             orgEvent.participants.append(person)
 
         if pRole is not None:
@@ -151,6 +158,9 @@ class EventSignupHandler(commands.Cog):
         utility.saveData(
             'eventData.json', self.client.orgEvents.json(indent=2)
         )
+
+        # Update embed in discord.
+        self.makeUpdate(orgEvent)
 
         # Print welcome message to the discussion channel.
         if 'discussion' in orgEvent.channels.keys():

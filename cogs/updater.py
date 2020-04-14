@@ -62,7 +62,6 @@ class Updater(commands.Cog):
     @tasks.loop(seconds=13)
     async def updateChecking(self):
 
-        print('Checking...')
         # Make a copy of the up to date events list to check witch are tracked.
         # List items will be removed as they are found leaving a list of
         # untracked events.
@@ -126,22 +125,10 @@ class Updater(commands.Cog):
             if oldEmbed.footer.text != newEmbed.footer.text:
                 update = True
 
-            # Check if embed footer has changed.
-
-            print(hoursSinceUpdate)  # TODO: Remove print statement
-
             if update:
                 await self.client.loop.create_task(
                     self.updateEmbed(eventMatch['new'])
                 )
-
-
-        # Create a new embed message from data in orgEvents
-        # Check if the message is the same as what is in prevOrgEvents
-        # If there are changes edit the embed in discord.
-        # If diff between lastUpdates is more than 2 hours update the embed in discord.
-        # If an update has occured set the prevOrgevent to the orgEvent
-        # 
 
     @updateChecking.before_loop
     async def before_updateChecking(self):

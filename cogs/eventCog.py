@@ -22,7 +22,11 @@ class EventCog(commands.Cog):
         try:
             self.checkSheet.start()
         except RuntimeError as e:
-            print(e)
+            self.client.logger.warning(
+                'Exception thrown while starting sheet checking loop. '
+                'Error message reads as follows:\n'
+                f'{e}\n'
+            )
 
     def cog_unload(self):
 
@@ -255,7 +259,9 @@ class EventCog(commands.Cog):
         # Post the message containing the event embed to discord and get the
         # returned message object.
         msg = await self.channel.send(embed=embed)
-        print(f'New event added, ID is: {msg.id}')
+        self.client.logger.info(
+            f'New event added, ID is: {msg.id}'
+        )
 
         # Add registration emoji.
         await msg.add_reaction('✅')
@@ -496,13 +502,17 @@ class EventCog(commands.Cog):
             try:
                 status = int(sheets.getCell(*Constants.CELL_INDEX))
                 if authDenied:
-                    print('Reauthentication successful.')
+                    self.client.logger.info(
+                        'Reauthentication successful.'
+                    )
                 authDenied = False
             except gspread.exceptions.APIError:
                 """ Access token expires after 1 hour. The gspread client needs
                 to refresh the access token.
                 """
-                print('Authentication expired, attempting reauthentication.')
+                self.client.logger.info(
+                    'Authentication expired, attempting reauthentication.'
+                )
                 authDenied = True
                 sheets.refreshAuth()
             else:

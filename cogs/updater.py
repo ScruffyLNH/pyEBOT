@@ -17,7 +17,11 @@ class Updater(commands.Cog):
         try:
             self.updateChecking.start()
         except RuntimeError as e:
-            print(e)
+            self.client.logger.warning(
+                'Exception thrown while attempting to start update-'
+                'checking loop. Error message reads as follows:\n'
+                f'{e}\n'
+            )
 
     # Stop running loops if the cog is unloaded.
     def cog_unload(self):

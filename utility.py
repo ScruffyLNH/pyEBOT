@@ -1,4 +1,5 @@
 import json
+import logging
 
 
 def loadData(fileName):
@@ -13,7 +14,12 @@ def loadData(fileName):
         with open(fileName) as f:
             data = json.load(f)
     except FileNotFoundError as e:
-        print(e)
+        logger = logging.getLogger('discord')
+        logger.info(
+            'Exception thrown when trying to load data. '
+            'Error message reads:\n'
+            f'{e}\n'
+        )
         data = None
     return data
 
@@ -33,7 +39,12 @@ def saveData(fileName, data):
         with open(fileName, 'w', encoding='utf-8') as f:
             f.write(data)
     except Exception as e:
-        print(e)
+        logger = logging.getLogger('discord')
+        logger.warning(
+            'Exception thrown when trying to serialize data. '
+            'Error message reads as follows:\n'
+            f'{e}\n'
+        )
         return False
     return True
 
@@ -53,7 +64,12 @@ def formatData(obj):
             indent=2
         )
     except Exception as e:
-        print(e)
+        logger = logging.getLogger('discord')
+        logger.warning(
+            'Exception thrown while attempting to format data. '
+            'Error message reads as follows:\n'
+            f'{e}\n'
+        )
         return None
     return jsonData
 

@@ -101,7 +101,9 @@ class EventSignupHandler(commands.Cog):
 
         # Check that event was found in the internal record.
         if not orgEvent:
-            print('Someone tried to sign up for an untracked event.')
+            self.client.logger.warning(
+                'Someone tried to sign up for an untracked event.'
+            )
             return
 
         # Check that event is not over, and handle rejection if required.
@@ -233,6 +235,10 @@ class EventSignupHandler(commands.Cog):
         person = orgEvent.getParticipant(member.id)
         if 'participant' in orgEvent.roles.keys():
             if person.getRole(orgEvent.roles['participant'].id) is not None:
+                self.client.logger.warning(
+                    'Event user inconsistency. Signup request received from '
+                    'registered user.'
+                )
                 await member.send(
                     'Hmm, you seem to already be registered for the event.'
                     ' Strange. :shrug:',

@@ -393,7 +393,8 @@ class EventCog(commands.Cog):
             keys=keys,
             organizer=organizer,
             roles=roles,
-            channels=channels
+            channels=channels,
+            lastUpdate=datetime.utcnow()
         )
         # TODO: Line below should be done in class initialisation, but idk how
         # to do that correctly with pydantic BaseModel classes.

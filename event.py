@@ -48,6 +48,7 @@ class Person(BaseModel):
     roles: List[Role] = []
     ships: List[str] = []
     events: List[EventRecord] = []
+    active: bool = True
 
     def getRole(self, id):
         for role in self.roles:
@@ -88,6 +89,7 @@ class Event(BaseModel):
     channels: Dict[str, Channel] = {}
     participants: List[Person] = []
     privateIndication: dict = {}
+    lastUpdate: datetime
 
     # def __init__(
     #     self, id, data, keys, organizer, roles, channels, participants
@@ -297,9 +299,9 @@ class Event(BaseModel):
         # TODO: Add organizer in description of embed.
 
         if self.participants is not None:
-            footerBuffer.append('Participants: (In chronological order).')
+            footerBuffer.append('Participants: (In chronological order). ')
             # Get the name of every participant and put it in a list.
-            people = [p.name for p in self.participants]
+            people = [p.name for p in self.participants if p.active]
             # Add string with all names separated with a comma to the buffer.
             footerBuffer.append(f'{", ".join(people)}')
 
@@ -388,7 +390,26 @@ class Event(BaseModel):
 
         return privateInd
 
+    def moveToBottom(self, person):
+        try:
+            index = self.participants.index(person)
+        except ValueError as e:
+            index = None
+            self.client.logger.warning(
+                f'Exception occured when attempting to get index of a person'
+                f'Exception message:\n{e}'
+            )
+
+        if index is not None:
+            self.participants.append(self.participants.pop(index))
+
 
 class OrgEvents(BaseModel):
 
     events: List[Event] = []
+
+    def getEvent(self, id):
+        for event in self.events:
+            if event.id == id:
+                return id
+        return None

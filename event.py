@@ -390,6 +390,19 @@ class Event(BaseModel):
 
         return privateInd
 
+    def moveToBottom(self, person):
+        try:
+            index = self.participants.index(person)
+        except ValueError as e:
+            index = None
+            self.client.logger.warning(
+                f'Exception occured when attempting to get index of a person'
+                f'Exception message:\n{e}'
+            )
+
+        if index is not None:
+            self.participants.append(self.participants.pop(index))
+
 
 class OrgEvents(BaseModel):
 

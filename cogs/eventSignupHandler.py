@@ -126,6 +126,8 @@ class EventSignupHandler(commands.Cog):
             if await self.userAlreadyHasRole(data):
                 return
 
+            orgEvent.moveToBottom(person)
+
         # If user has passed all flags, add user to event and update
         # the embed.
 

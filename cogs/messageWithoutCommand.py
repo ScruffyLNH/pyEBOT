@@ -1,4 +1,4 @@
-import discord # noqa
+"""import discord # noqa
 import asyncio
 import sheets
 from discord.ext import tasks, commands
@@ -51,3 +51,4 @@ class MessageWithoutCommand(commands.Cog):
 
 def setup(client):
     client.add_cog(MessageWithoutCommand(client))
+"""

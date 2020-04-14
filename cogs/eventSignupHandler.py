@@ -166,7 +166,7 @@ class EventSignupHandler(commands.Cog):
         # Update embed in discord.
         self.makeUpdate(orgEvent)
 
-        # Print welcome message to the discussion channel.
+        # Send welcome message to the discussion channel.
         if 'discussion' in orgEvent.channels.keys():
             await self.sendWelcomeMsg(member, orgEvent.channels['discussion'])
 

@@ -1,4 +1,4 @@
-import discord # noqa
+"""import discord # noqa
 import asyncio
 from discord.ext import tasks, commands
 
@@ -54,3 +54,4 @@ def setup(client):
     client.add_cog(AsyncCog(client))
 
 # self.loop.run_until_complete(self.makeTasks)
+"""

@@ -334,6 +334,9 @@ class Event(BaseModel):
         else:
             countdownString = 'Event has concluded.'
 
+        if privateIndication['Date Time'] and timeToEvent.days > 0:
+            countdownString = 'Event added, sign up to see date and time.'
+
         if includeAuthor:
             eventPost.set_author(
                 name=countdownString,

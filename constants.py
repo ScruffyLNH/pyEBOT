@@ -21,6 +21,9 @@ class Constants:
     # ID of the events category channel.
     EVENTS_CAT_CHANNEL_ID = 676474908603318272
 
+    # ID of archive channel.
+    ARCHIVE_CHANNEL_ID = 685608894197792783
+
     # Discord ID of the bots admin.
     ADMIN_ID = 312381318891700224
 

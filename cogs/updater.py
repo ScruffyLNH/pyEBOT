@@ -63,7 +63,42 @@ class Updater(commands.Cog):
         else:
             self.prevOrgEvents.events.append(event)
 
-    @tasks.loop(seconds=13)
+    async def archiveEvent(self, eventId):
+        # Find event by id.
+        event = next(
+            (e for e in self.client.orgEvents.events if e.id == eventId),
+            None
+        )
+
+        if event is not None:
+            guild = self.client.get_guild(Constants.GUILD_ID)
+
+            eventCh = self.client.get_channel(Constants.MAIN_CHANNEL_ID)
+            archiveCh = self.client.get_channel(Constants.ARCHIVE_CHANNEL_ID)
+
+            # Delete roles and channels if they exist.
+            for role in event.roles.values():
+                # Get discord roles associated with event.
+                dRole = guild.get_role(role.id)
+                await dRole.delete()
+            for channel in event.channels.values():
+                # Get discord channels associated with event.
+                dChannel = guild.get_channel(channel.id)
+                await dChannel.delete()                
+
+            # Delte event embed from event channel.
+            msg = await eventCh.fetch_message(event.id)
+            await msg.delete()
+
+            # Send event embed to archive channel.
+            user = self.client.get_user(event.organizer.id)
+            embed = event.makeEmbed(True, user, includeRollCall=False)
+            await archiveCh.send(embed=embed)
+
+            # Remove event from event list if found.
+            self.client.orgEvents.events.remove(event)
+
+    @tasks.loop(seconds=31)
     async def updateChecking(self):
 
         # Make a copy of the up to date events list to check witch are tracked.
@@ -129,9 +164,20 @@ class Updater(commands.Cog):
             if oldEmbed.footer.text != newEmbed.footer.text:
                 update = True
 
+            # Run update on embed message.
             if update:
                 await self.client.loop.create_task(
                     self.updateEmbed(eventMatch['new'])
+                )
+
+            # Get hours until event start.
+            hoursLeft = (
+                eventMatch['new'].dateAndTime - datetime.utcnow()
+            ).total_seconds() / 3600.0
+            # Archive event if event has passed by 12 hours.
+            if hoursLeft < -12:
+                await self.client.loop.create_task(
+                    self.archiveEvent(eventMatch['new'].id)
                 )
 
     @updateChecking.before_loop

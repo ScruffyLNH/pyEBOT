@@ -35,11 +35,18 @@ class DevTools(commands.Cog):
     async def getChannels(self, ctx):
         channels = ''
         guild = self.client.get_guild(Constants.GUILD_ID)
-        for channel in guild.channels:
+        for i, channel in enumerate(guild.channels):
             channels += f'\n {channel.name}'
             channels += f'\n\tid: {channel.id},\n\ttype: {channel.type},'
             channels += f'\n\tposition: {channel.position}\n'
-        await ctx.send(f'Channels in this server:\n{channels}')
+            # Add paragraph sep every 5 channels as a split marker.
+            if i % 5 == 4:
+                channels += '\u2029'
+
+        msgPackets = channels.split('\u2029')
+        msgPackets[0] = 'Channels in this server:\n' + msgPackets[0]
+        for package in msgPackets:
+            await ctx.send(package)
 
     @commands.command()
     async def getRoles(self, ctx):

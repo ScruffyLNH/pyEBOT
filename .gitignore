@@ -6,8 +6,8 @@ creds.json
 # File storing discord client token.
 token.json
 
-# Logging file
-mainLogFile.log
+# Logging files
+*.log
 
 ### Resources ###
 Res/*

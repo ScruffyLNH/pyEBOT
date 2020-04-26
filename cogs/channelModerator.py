@@ -20,7 +20,7 @@ class ChannelModerator(commands.Cog):
 
     async def moveMessage(self, message):
 
-        chnl = self.client.get_channel(685608763901739011)  # TODO: Refactor
+        chnl = self.client.get_channel(Constants.EVENT_DISCUSSION_ID)  # TODO: Refactor
         string = f"{message.author.mention} says:\n" + message.content
         botMessage = await chnl.send(string)
         await message.delete()
@@ -48,7 +48,9 @@ class ChannelModerator(commands.Cog):
                 msg = commentor.removeMessage
                 if msg:
                     # Get the event-discussion channel
-                    channel = self.client.get_channel(685608763901739011)  # TODO: Refactor
+                    channel = self.client.get_channel(
+                        Constants.EVENT_DISCUSSION_ID
+                    )  # TODO: Refactor
                     discordMsg = await channel.fetch_message(msg.id)
                     await discordMsg.delete()
                     if msg.last:
@@ -138,7 +140,7 @@ class ChannelModerator(commands.Cog):
 
     def cog_check(self, ctx):
         # Check if channel is event-discussion
-        return ctx.channel.id == 685608763901739011  # TODO: Refactor.
+        return ctx.channel.id == Constants.EVENT_DISCUSSION_ID  # TODO: Refactor.
 
 
 def setup(client):

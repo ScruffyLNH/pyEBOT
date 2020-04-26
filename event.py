@@ -3,7 +3,7 @@ from enum import Enum
 from typing import List, Dict
 from pydantic import BaseModel
 from constants import Constants
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class TestClass:
@@ -76,6 +76,31 @@ class Person(BaseModel):
         return foundRole
 
 
+class Mentions(Enum):
+
+    none = 0
+    everyone = 1
+    participants = 2
+    participantsNotInVc = 3
+
+
+class Alert(BaseModel):
+
+    eventName: str
+    time: datetime
+    margin: timedelta
+    mentions: Mentions
+    textChannelId: int
+    voiceChannelId: int
+
+
+class Notifications(BaseModel):
+
+    generalAlerts: List[Alert]
+    participantAlerts: List[Alert]
+    sentAlerts: List[Alert] = []
+
+
 class Event(BaseModel):
     # TODO: Document this class when structure has been finalized.
 
@@ -90,6 +115,7 @@ class Event(BaseModel):
     participants: List[Person] = []
     privateIndication: dict = {}
     lastUpdate: datetime
+    notifications: Notifications
 
     # def __init__(
     #     self, id, data, keys, organizer, roles, channels, participants
@@ -272,7 +298,7 @@ class Event(BaseModel):
         # bodyBuffer.append('\n')
 
         # If voice channel is public, specify in embed body.
-        if self.roles:
+        if self.roles:  # TODO: Get the voice channel from the config.
             voiceString = (
                 ':loud_sound: Voice Channel: '
                 'A private voice channel has been created for this event. '
@@ -324,6 +350,11 @@ class Event(BaseModel):
         )
 
         timeToEvent = self.dateAndTime - datetime.utcnow()
+        if (
+            self.dateAndTime.time() < datetime.utcnow().time() and not
+            datetime.utcnow() > self.dateAndTime
+        ):
+            timeToEvent += timedelta(days=1)
 
         if timeToEvent.days == 0:
             countdownString = 'Event kicking off today!'

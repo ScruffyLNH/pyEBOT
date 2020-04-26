@@ -13,12 +13,19 @@ from discord.ext import commands
 # TODO: Decide if I want to use descriptors for agruments in funcs and mehts.
 # example def doSomething(arg1: str, arg2: int)
 
+# TODO: Add exception to member only requirement for daymar rally if participants are
+# in collaborators
+
+# TODO: Check if await fetch_guild can be replaced by using self.client.get_guild
+
+# TODO: Check if self.client.get_channel is used anywhere and replace with guild.get_channel
+
 if __name__ == "__main__":
     """Instanciate the discord.py client/bot and load event data if it exists.
     """
 
     # Instanciate the client and set the command prefix.
-    client = commands.Bot(Constants.CMD_PREFIX)
+    client = commands.Bot(Constants.CMD_PREFIX)  # TODO: Make it possible to change prefix with cmd.
 
     # Remove the default help command.
     client.remove_command('help')
@@ -26,7 +33,7 @@ if __name__ == "__main__":
     # Setup the logger
     # TODO: Handle printing to console from logger by adding handler.
     logger = logging.getLogger('discord')
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)  # TODO: Set apropriate logging level. (INFO)
     handler = handlers.RotatingFileHandler(
         filename='mainLogFile.log',
         mode='a',  # Append mode? #TODO: Verify

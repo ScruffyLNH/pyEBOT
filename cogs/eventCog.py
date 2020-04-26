@@ -4,7 +4,7 @@ import asyncio
 import event
 import gspread
 import utility
-from datetime import datetime
+from datetime import datetime, timedelta
 from constants import Constants
 from discord.ext import tasks, commands
 
@@ -131,15 +131,15 @@ class EventCog(commands.Cog):
 
     def convertDates(self, sheetData, *keys):
         """Converts dates from the format used in google sheets to datetime
-        python objects.
+        python objects. Returns None if date could not be parsed.
 
         :param sheetData: Event data from google sheets.
-        :type sheetData: List of dictionary
+        :type sheetData: List[dictionary]
         :param *keys: The keys in dict where the value should be converted.
         :type *keys: String (arbitrary number of arguments)
         :return: Converted event data. If a valid date was not found the value
-        will be an empty string.
-        :rtype: List of dictionary
+        will be None.
+        :rtype: List[dictionary]
         """
 
         # TODO: Catch exception and drop event if data could not be parsed.
@@ -245,6 +245,109 @@ class EventCog(commands.Cog):
             )
         }
         return voiceOverwrites
+
+    def makeAlerts(
+        self,
+        eventName,
+        dateAndTime,
+        deadline,
+        channels,
+        general=False,
+        participant=False
+    ):
+        """Create alerts for notifying members and event participants
+        of event info and updates.
+
+        :param dateAndTime: Event start date.
+        :type dateAndTime: datetime
+        :param deadline: Deadline for event signup.
+        :type deadline: datetime
+        :param channels: Created channels for the event.
+        :type channels: List[event.Channel]
+        :param general: True if making general alerts, defaults to False
+        :type general: bool, optional
+        :param participant: True if making alerts for participants,
+        defaults to False
+        :type participant: bool, optional
+        """
+
+        # Create an empty list to hold alert objects
+        alerts = []
+
+        # Private events will always have channels.
+        if channels:
+            textChannelId = channels['discussion'].id
+            voiceChannelId = channels['mainVoice'].id
+        else:
+            textChannelId = Constants.EVENT_DISCUSSION_ID  # TODO: Change this to lobby channel when config is implemented.
+            voiceChannelId = Constants.EVENT_VOICE_ID
+
+        if general:
+            # TODO: Link timedeltas to config defaults.
+            alertTimesBeforeStart = [
+                timedelta(weeks=2),
+                timedelta(weeks=1),
+                timedelta(days=2),
+                timedelta(days=1)
+                ]
+
+            for delta in alertTimesBeforeStart:
+                alert = event.Alert(
+                    eventName=eventName,
+                    time=dateAndTime - delta,
+                    margin=timedelta(minutes=30),
+                    mentions=event.Mentions.everyone,
+                    textChannelId=Constants.EVENT_DISCUSSION_ID,  # TODO: Refactor
+                    voiceChannelId=voiceChannelId
+                )
+                if deadline is not None:
+                    if (dateAndTime - delta) < deadline:
+                        alerts.append(alert)
+                else:
+                    alerts.append(alert)
+
+            if deadline is not None:
+                deadlineAlert = event.Alert(
+                    eventName=eventName,
+                    time=deadline - timedelta(hours=2),
+                    margin=timedelta(minutes=5),
+                    mentions=event.Mentions.everyone,
+                    textChannelId=textChannelId,
+                    voiceChannelId=voiceChannelId
+                )
+
+                alerts.append(deadlineAlert)
+
+        if participant:
+            # TODO: Link timedeltas to config defaults.
+            alertTimesBeforeStart = [
+                timedelta(hours=4),
+                timedelta(hours=1),
+                timedelta(minutes=30),
+                timedelta(minutes=5),
+                timedelta(seconds=2)
+                ]
+
+            for delta in alertTimesBeforeStart:
+                # If time to event is more than 10 min, every participant will
+                # be mentioned. Else only participants not in the event voice
+                # chat will be mentioned.
+                if delta.total_seconds() // 60 > 10:
+                    mention = event.Mentions.participants
+                else:
+                    mention = event.Mentions.participantsNotInVc
+
+                alert = event.Alert(
+                    eventName=eventName,
+                    time=dateAndTime - delta,
+                    margin=timedelta(seconds=15),
+                    mentions=mention,
+                    textChannelId=textChannelId,
+                    voiceChannelId=voiceChannelId
+                )
+                alerts.append(alert)
+
+        return alerts
 
     # Coroutines
     async def assignId(self, orgEvent):
@@ -391,6 +494,38 @@ class EventCog(commands.Cog):
             eventData, 'Date Time', 'Deadline'
         )
 
+        # Create default general alerts list.
+        generalAlerts = self.makeAlerts(
+            eventData['Event'],
+            dateAndTime,
+            deadline,
+            channels,
+            general=True
+        )
+        strings = ['The following general alerts was created:\n']
+        [strings.append(str(a.time) + '\n') for a in generalAlerts]
+
+        self.client.logger.debug(''.join(strings))
+
+        # Create default participant alerts list.
+        participantAlerts = self.makeAlerts(
+            eventData['Event'],
+            dateAndTime,
+            deadline,
+            channels,
+            participant=True
+        )
+        strings = ['The following participant alerts was created:\n']
+        [strings.append(str(a.time) + '\n') for a in participantAlerts]
+
+        self.client.logger.debug(''.join(strings))
+
+        # Create notifications for event.
+        notifications = event.Notifications(
+            generalAlerts=generalAlerts,
+            participantAlerts=participantAlerts
+        )
+
         # Instanciate event object.
         eventInstance = event.Event(
             data=eventData,
@@ -400,7 +535,8 @@ class EventCog(commands.Cog):
             organizer=organizer,
             roles=roles,
             channels=channels,
-            lastUpdate=datetime.utcnow()
+            lastUpdate=datetime.utcnow(),
+            notifications=notifications
         )
         # TODO: Line below should be done in class initialisation, but idk how
         # to do that correctly with pydantic BaseModel classes.

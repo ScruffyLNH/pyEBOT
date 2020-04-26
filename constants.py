@@ -7,7 +7,7 @@ class Constants:
     CMD_PREFIX = '!'
 
     # Name of the file where data for events is stored.
-    FILENAME = 'eventData.json'
+    FILENAME = 'eventData.json'  # TODO: Rename to someting sensible, and add filenames for managed messages and config data as well.
 
     # Index touple of the google sheet cell where the update integer is set.
     CELL_INDEX = (2, 26)
@@ -23,6 +23,12 @@ class Constants:
 
     # ID of archive channel.
     ARCHIVE_CHANNEL_ID = 685608894197792783
+
+    # ID of Event-discussion channel.
+    EVENT_DISCUSSION_ID = 685608763901739011
+
+    # ID of default event voice channel.
+    EVENT_VOICE_ID = 676186916118331397
 
     # Discord ID of the bots admin.
     ADMIN_ID = 312381318891700224

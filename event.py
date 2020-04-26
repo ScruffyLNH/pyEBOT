@@ -324,6 +324,11 @@ class Event(BaseModel):
         )
 
         timeToEvent = self.dateAndTime - datetime.utcnow()
+        if (
+            self.dateAndTime.time() < datetime.utcnow().time() and not
+            datetime.utcnow() > self.dateAndTime
+        ):
+            timeToEvent += timedelta(days=1)
 
         if timeToEvent.days == 0:
             countdownString = 'Event kicking off today!'

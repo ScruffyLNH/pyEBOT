@@ -117,7 +117,13 @@ class ChannelModerator(commands.Cog):
                 self.manageMessage(botMsg, message)
 
     def manageMessage(self, botMessage, userMessage):
-        # TODO: Docstring
+        """ Store users and messages sent in event channel.
+
+        :param botMessage: Message obj the bot has sent in users name.
+        :type botMessage: discord message
+        :param userMessage: Message obj from the actual user.
+        :type userMessage: discord message
+        """
 
         # Instanciate a message object.
         m = managedMessages.Message(

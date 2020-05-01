@@ -105,9 +105,6 @@ if __name__ == "__main__":
                 'Record was found, but could not be loaded. '
                 'Starting clean'
             )
-            print('Record was found, but could not be loaded.')
-            print(e)
-            print('\n Starting clean.')
             # TODO: Clean up wet code.
             client.orgEvents = event.OrgEvents()
             eventData = client.orgEvents.json(indent=2)

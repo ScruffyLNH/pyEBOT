@@ -8,11 +8,13 @@ class DevTools(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    """
     # Events
     @commands.Cog.listener()
     async def on_message(self, message):
         messageId = message.id
         print(f'Message ID is: {messageId}')
+    """
 
     # Commands
     @commands.command()

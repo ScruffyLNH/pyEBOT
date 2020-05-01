@@ -32,7 +32,7 @@ class DevTools(commands.Cog):
 
     @commands.command()
     async def getGuildId(self, ctx):
-        await ctx.send(f'Your guilds ID is: {ctx.guild.id}')
+        await ctx.send(f'This guilds ID is: {ctx.guild.id}')
 
     @commands.command()
     async def getChannels(self, ctx):

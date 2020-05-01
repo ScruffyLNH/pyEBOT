@@ -1,4 +1,5 @@
 import discord # noqa
+from utility import sendMessagePackets
 from constants import Constants
 from discord.ext import commands
 
@@ -41,14 +42,8 @@ class DevTools(commands.Cog):
             channels += f'\n {channel.name}'
             channels += f'\n\tid: {channel.id},\n\ttype: {channel.type},'
             channels += f'\n\tposition: {channel.position}\n'
-            # Add paragraph sep every 5 channels as a split marker.
-            if i % 5 == 4:
-                channels += '\u2029'
 
-        msgPackets = channels.split('\u2029')
-        msgPackets[0] = 'Channels in this server:\n' + msgPackets[0]
-        for package in msgPackets:
-            await ctx.send(package)
+        await sendMessagePackets(ctx, channels)
 
     @commands.command()
     async def getRoles(self, ctx):
@@ -58,7 +53,8 @@ class DevTools(commands.Cog):
             roles += f'\n {role.name}'
             roles += f'\n\tid: {role.id},\n\tPosition: {role.position}\n'
         roles = roles.translate(str.maketrans('', '', '@'))
-        await ctx.send(f'Roles on this server:\n{roles}')
+
+        await sendMessagePackets(ctx, roles)
 
     @commands.command()
     async def getGuilds(self, ctx):

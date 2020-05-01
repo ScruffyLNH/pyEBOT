@@ -74,6 +74,27 @@ def formatData(obj):
     return jsonData
 
 
+def checkConfig(config):
+    """Checks that all necessary configuration fields has been set.
+    Returns the names of any invalid configuration fields.
+
+    :param config: The Configuration object to check.
+    :type confing: configuration.Configuration
+    :return: Names of fields that have yet to be set.
+    :return type: List[str]
+    """
+
+    remainingFields = [
+        f for f in dir(config)
+        if not f.startswith('_')
+        and not f == 'fields'
+        and not callable(getattr(config, f))
+        and not type(getattr(config, f)) is int
+    ]
+
+    return remainingFields
+
+
 def unformatData(fileName):
     pass
 

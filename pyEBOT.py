@@ -1,16 +1,16 @@
 import discord # noqa
 import os
 import event
+import configuration
 import managedMessages
 import logging
 from logging import handlers
 from pydantic import ValidationError
-from utility import loadData
-from utility import saveData
+from utility import loadData, saveData, checkConfig, sendMessagePackets
 from constants import Constants
 from discord.ext import commands
 
-# TODO: Decide if I want to use descriptors for agruments in funcs and mehts.
+# TODO: Decide if I want to use descriptors for agruments in funcs and meths.
 # example def doSomething(arg1: str, arg2: int)
 
 # TODO: Add exception to member only requirement for daymar rally if participants are
@@ -45,6 +45,34 @@ if __name__ == "__main__":
     )
     logger.addHandler(handler)
     client.logger = logger
+
+    # Deserialize configuration data.
+    configData = loadData(Constants.CONFIG_DATA_FILENAME)
+    if configData is None:
+        client.logger.info('Config data not found.')
+        client.config = configuration.Configuration()
+        configData = client.config.json(indent=2)
+        saveData(Constants.CONFIG_DATA_FILENAME, configData)
+    else:
+        try:
+            # Attempt to parse persistent config data to config.
+            client.config = configuration.Configuration.parse_obj(
+                configData
+            )
+            client.logger.info(
+                'Config data successfully parsed.'
+            )
+        except ValidationError as e:
+            client.logger.warning(
+                'Exception thrown, error message is as follows:\n'
+                f'{e}\n'
+                'Config data was found, but could not be loaded. '
+                'Starting clean'
+            )
+            # TODO: Clean up wet code.
+            client.config = configuration.Configuration()
+            configData = client.config.json(indent=2)
+            saveData(Constants.CONFIG_DATA_FILENAME, configData)
 
     # Deserialize orgEvent data.
     eventData = loadData(Constants.EVENT_DATA_FILENAME)
@@ -111,7 +139,7 @@ if __name__ == "__main__":
 
 # Check functions
 def isAdmin(ctx):
-    return ctx.author.id == 312381318891700224
+    return ctx.author.id == client.config.adminId
 
 # Events
 @client.event
@@ -120,17 +148,57 @@ async def on_ready():
     print('Ready.')
 
 # Commands
-@client.command()
+@client.command()  # TODO: Add proper authorization checks.
+@commands.check(isAdmin)
 async def load(ctx, extension):
-    client.load_extension(f'cogs.{extension}')
+    remainingFields = checkConfig(client.config)
+    if not remainingFields or extension == 'serverConfig':
+        client.load_extension(f'cogs.{extension}')
+        await ctx.send('Cog has been loaded.')
+    else:
+        msg = (
+            'Cannot load cog, Please make sure bot has been configured for '
+            'this guild. Remaining fields to be configured are as follows:\n'
+            + '\n'.join(remainingFields)
+        )
+
+        await ctx.send(msg)
 
 
 @client.command()
+@commands.check(isAdmin)
 async def unload(ctx, extension):
     client.unload_extension(f'cogs.{extension}')
 
 
 @client.command()
+@commands.check(isAdmin)
+async def loadAll(ctx):
+    remainingFields = checkConfig(client.config)
+    if not remainingFields:
+        for filename in os.listdir('./cogs'):
+            exclusionList = [
+                '__init__.py',
+                'experimentalCog.py',  # TODO: Clean up exclusion list.
+                'messageWithoutCommand.py',
+                'asyncCog.py'
+            ]
+            if filename not in exclusionList:
+                if filename.endswith('.py'):
+                    client.load_extension(f'cogs.{filename[:-3]}')
+        await ctx.send('Cogs have been loaded.')
+    else:
+        msg = (
+            'Cannot load cogs, Please make sure bot has been configured for '
+            'this guild. Remaining fields to be configured are as follows:\n'
+            + '\n'.join(remainingFields)
+        )
+
+        await sendMessagePackets(ctx, msg)
+
+
+@client.command()
+@commands.check(isAdmin)
 async def reload(ctx, extension):
     client.reload_extension(f'cogs.{extension}')
 
@@ -141,18 +209,22 @@ async def checkTest(ctx):
     await ctx.send('Yes, you are admin')
 
 # Load cogs
-for filename in os.listdir('./cogs'):
-    # Files in exclusion list will not be loaded.
-    exclusionList = [
-        '__init__.py',
-        'experimentalCog.py',
-        'messageWithoutCommand.py',
-        'asyncCog.py']
-    if filename not in exclusionList:
-        if filename.endswith('.py'):
-            client.load_extension(f'cogs.{filename[:-3]}')
-            # TODO: Add try catch?
-
+remainingFields = checkConfig(client.config)
+if not remainingFields:
+    for filename in os.listdir('./cogs'):
+        # Files in exclusion list will not be loaded.
+        exclusionList = [
+            '__init__.py',
+            'experimentalCog.py',
+            'messageWithoutCommand.py',
+            'asyncCog.py'
+        ]
+        if filename not in exclusionList:
+            if filename.endswith('.py'):
+                client.load_extension(f'cogs.{filename[:-3]}')
+else:
+    client.load_extension('cogs.devTools')
+    client.load_extension('cogs.serverConfig')
 
 # TODO: Make sure every assignments are encapsulated somehow to conform to
 # sphinx documentation.

@@ -109,8 +109,9 @@ class DevTools(commands.Cog):
         msg = await ctx.channel.fetch_message(messageId)
         await msg.edit(content=newContent)
 
+    # Command check for entire cog.
     def cog_check(self, ctx):
-        return ctx.author.id == Constants.ADMIN_ID
+        return ctx.author.id == self.client.config.adminId
 
 
 def setup(client):

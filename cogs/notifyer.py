@@ -198,7 +198,8 @@ class Notifyer(commands.Cog):
 
             if discardAlerts:
                 utility.saveData(
-                    'eventData.json', self.client.orgEvents.json(indent=2)
+                    Constants.EVENT_DATA_FILENAME,
+                    self.client.orgEvents.json(indent=2)
                 )
 
     @participantsNotifyer.before_loop
@@ -229,7 +230,8 @@ class Notifyer(commands.Cog):
 
             if discardAlerts:
                 utility.saveData(
-                    'eventData.json', self.client.orgEvents.json(indent=2)
+                    Constants.EVENT_DATA_FILENAME,
+                    self.client.orgEvents.json(indent=2)
                 )
 
     @eventNotifyer.before_loop

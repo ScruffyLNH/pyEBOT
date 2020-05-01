@@ -68,7 +68,7 @@ class EventSignupHandler(commands.Cog):
                 await member.remove_roles(participantRole)
 
         utility.saveData(
-            'eventData.json', self.client.orgEvents.json(indent=2)
+            Constants.EVENT_DATA_FILENAME, self.client.orgEvents.json(indent=2)
         )
 
         # Update embed in discord.
@@ -160,7 +160,7 @@ class EventSignupHandler(commands.Cog):
 
         # Serialize data.
         utility.saveData(
-            'eventData.json', self.client.orgEvents.json(indent=2)
+            Constants.EVENT_DATA_FILENAME, self.client.orgEvents.json(indent=2)
         )
 
         # Update embed in discord.

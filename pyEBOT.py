@@ -31,11 +31,10 @@ if __name__ == "__main__":
     client.remove_command('help')
 
     # Setup the logger
-    # TODO: Handle printing to console from logger by adding handler.
     logger = logging.getLogger('discord')
     logger.setLevel(logging.DEBUG)  # TODO: Set apropriate logging level. (INFO)
     handler = handlers.RotatingFileHandler(
-        filename='mainLogFile.log',
+        filename=Constants.LOG_FILENAME,
         mode='a',  # Append mode? #TODO: Verify
         maxBytes=8*1024*1024,  # Max size is 8MB
         backupCount=2,
@@ -48,15 +47,15 @@ if __name__ == "__main__":
     client.logger = logger
 
     # Deserialize orgEvent data.
-    eventData = loadData('eventData.json')
-    # If eventData.json does not exist client.orgEvents will be
+    eventData = loadData(Constants.EVENT_DATA_FILENAME)
+    # If eventData does not exist client.orgEvents will be
     # initialized cleanly.
     if eventData is None:
         client.logger.info('No event record found. Starting clean.')
         print('No event record found. Starting clean.')
         client.orgEvents = event.OrgEvents()
         eventData = client.orgEvents.json(indent=2)
-        saveData('eventData.json', eventData)
+        saveData(Constants.EVENT_DATA_FILENAME, eventData)
     else:
         try:
             # Attempt to parse persistent data to orgEvents.
@@ -84,15 +83,15 @@ if __name__ == "__main__":
             # TODO: Clean up wet code.
             client.orgEvents = event.OrgEvents()
             eventData = client.orgEvents.json(indent=2)
-            saveData('eventData.json', eventData)
+            saveData(Constants.EVENT_DATA_FILENAME, eventData)
 
-    messageData = loadData('messageData.json')
+    messageData = loadData(Constants.MESSAGE_DATA_FILENAME)
     if messageData is None:
         client.logger.info('No message data found.')
         print('No message data found.')
         client.managedMessages = managedMessages.ManagedMessages()
         messageData = client.managedMessages.json(indent=2)
-        saveData('messageData.json', messageData)
+        saveData(Constants.MESSAGE_DATA_FILENAME, messageData)
     else:
         try:
             client.managedMessages = managedMessages.ManagedMessages.parse_obj(

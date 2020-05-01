@@ -7,7 +7,16 @@ class Constants:
     CMD_PREFIX = '!'
 
     # Name of the file where data for events is stored.
-    FILENAME = 'eventData.json'  # TODO: Rename to someting sensible, and add filenames for managed messages and config data as well.
+    EVENT_DATA_FILENAME = 'eventData.json'  # TODO: Rename to someting sensible, and add filenames for managed messages and config data as well.
+
+    # Name of the file where message data is stored.
+    MESSAGE_DATA_FILENAME = 'messageData.json'
+
+    # Name of the file where configuration data is stored.
+    CONFIG_DATA_FILENAME = 'config.json'
+
+    # Name of the log file.
+    LOG_FILENAME = 'mainLogFile.log'
 
     # Index touple of the google sheet cell where the update integer is set.
     CELL_INDEX = (2, 26)

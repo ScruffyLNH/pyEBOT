@@ -1,6 +1,7 @@
 import discord # noqa
 import asyncio
 import copy
+from utility import saveData
 from constants import Constants
 from datetime import datetime
 from discord.ext import tasks, commands
@@ -73,7 +74,7 @@ class Updater(commands.Cog):
         if event is not None:
             guild = self.client.get_guild(Constants.GUILD_ID)
 
-            eventCh = self.client.get_channel(Constants.MAIN_CHANNEL_ID)
+            eventCh = self.client.get_channel(Constants.MAIN_CHANNEL_ID)  # TODO: Use guild.get instead of client.get
             archiveCh = self.client.get_channel(Constants.ARCHIVE_CHANNEL_ID)
 
             # Delete roles and channels if they exist.
@@ -84,7 +85,7 @@ class Updater(commands.Cog):
             for channel in event.channels.values():
                 # Get discord channels associated with event.
                 dChannel = guild.get_channel(channel.id)
-                await dChannel.delete()                
+                await dChannel.delete()
 
             # Delte event embed from event channel.
             msg = await eventCh.fetch_message(event.id)
@@ -97,6 +98,9 @@ class Updater(commands.Cog):
 
             # Remove event from event list if found.
             self.client.orgEvents.events.remove(event)
+
+            # Save data
+            saveData(Constants.EVENT_DATA_FILENAME, self.client.orgEvents)
 
     @tasks.loop(seconds=31)
     async def updateChecking(self):

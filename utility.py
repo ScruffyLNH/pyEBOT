@@ -85,3 +85,29 @@ def initialize(clientObject):
     # Get the URL links to resourses
 
     # Identify the org logo url and store the link in Constants class
+
+
+async def sendMessagePackets(ctx, message, limit=1800):
+    lines = message.split('\n')
+    msgPacket = []
+    packets = []
+    runningTotal = 0
+
+    # Split message to smaller chunks for which the number of characters
+    # will not exceed 1800.
+    for i, line in enumerate(lines):
+        runningTotal += len(line)
+        if runningTotal <= 1800:
+            msgPacket.append(line)
+            if i == len(lines) - 1:
+                packets.append(msgPacket)
+        else:
+            packets.append(msgPacket)
+            runningTotal = len(line)
+            msgPacket = [line]
+
+        # Add to total charactes for each newline that will be added.
+        runningTotal += 1
+
+    for msgPacket in packets:
+        await ctx.send('\n'.join(msgPacket))

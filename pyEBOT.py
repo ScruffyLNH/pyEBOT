@@ -28,7 +28,7 @@ if __name__ == "__main__":
     client = commands.Bot(Constants.CMD_PREFIX)  # TODO: Make it possible to change prefix with cmd.
 
     # Remove the default help command.
-    client.remove_command('help')
+    # client.remove_command('help')
 
     # Setup the logger
     logger = logging.getLogger('discord')
@@ -198,12 +198,6 @@ async def loadAll(ctx):
 @commands.check(isAdmin)
 async def reload(ctx, extension):
     client.reload_extension(f'cogs.{extension}')
-
-
-@client.command()
-@commands.check(isAdmin)
-async def checkTest(ctx):
-    await ctx.send('Yes, you are admin')
 
 # Load cogs
 remainingFields = checkConfig(client.config)

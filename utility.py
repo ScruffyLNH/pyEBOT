@@ -95,6 +95,23 @@ def checkConfig(config):
     return remainingFields
 
 
+def getConfigIds(config):
+    """Get a list of all config fields that have been set along with the ID.
+
+    :param config: The configuration object
+    :type config: configuration.Configuration
+    """
+    fields = [
+        f + ': ' + str(getattr(config, f)) for f in dir(config)
+        if not f.startswith('_')
+        and not f == 'fields'
+        and not callable(getattr(config, f))
+        and type(getattr(config, f)) is int
+    ]
+
+    return fields
+
+
 def unformatData(fileName):
     pass
 

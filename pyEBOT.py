@@ -148,6 +148,11 @@ async def on_ready():
 @client.command()  # TODO: Add proper authorization checks.
 @commands.check(isAdmin)
 async def load(ctx, extension):
+    """Load a specific cog. Functionality limited until server is configured.
+
+    :param extension: Name of the cog to be loaded.
+    :type extension: string
+    """
     remainingFields = checkConfig(client.config)
     if not remainingFields or extension == 'serverConfig':
         client.load_extension(f'cogs.{extension}')
@@ -165,12 +170,19 @@ async def load(ctx, extension):
 @client.command()
 @commands.check(isAdmin)
 async def unload(ctx, extension):
+    """Unloads a cog.
+
+    :param extension: The name of the cog to be unloaded.
+    :type extension: string
+    """
     client.unload_extension(f'cogs.{extension}')
 
 
 @client.command()
 @commands.check(isAdmin)
 async def loadAll(ctx):
+    """Load all cogs. Server must be configured before command can be invoked.
+    """
     remainingFields = checkConfig(client.config)
     if not remainingFields:
         for filename in os.listdir('./cogs'):
@@ -197,6 +209,11 @@ async def loadAll(ctx):
 @client.command()
 @commands.check(isAdmin)
 async def reload(ctx, extension):
+    """Reloads a cog.
+
+    :param extension: The name of the cog to load.
+    :type extension: string
+    """
     client.reload_extension(f'cogs.{extension}')
 
 # Load cogs

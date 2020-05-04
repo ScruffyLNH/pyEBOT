@@ -20,22 +20,32 @@ class DevTools(commands.Cog):
     # Commands
     @commands.command()
     async def ping(self, ctx):
+        """Verify bot is online. Bot should respond with "Pong!"
+        """
         await ctx.send('Pong!')
 
     @commands.command()
     async def getUserId(self, ctx):
+        """Get the discord id for the author of the command message.
+        """
         await ctx.send(f'Your user ID is: {ctx.author.id}')
 
     @commands.command()
     async def getChannelId(self, ctx):
+        """Get the channel id of the channel where command was invoked.
+        """
         await ctx.send(f'This channels ID is: {ctx.channel.id}')
 
     @commands.command()
     async def getGuildId(self, ctx):
+        """Get the guild id of the guild where command was invoked.
+        """
         await ctx.send(f'This guilds ID is: {ctx.guild.id}')
 
     @commands.command()
     async def getChannels(self, ctx):
+        """Get information on all channels in guild.
+        """
         channels = ''
         guild = self.client.get_guild(Constants.GUILD_ID)
         for i, channel in enumerate(guild.channels):
@@ -47,6 +57,8 @@ class DevTools(commands.Cog):
 
     @commands.command()
     async def getRoles(self, ctx):
+        """Get information on all roles in guild.
+        """
         serverRoles = ctx.guild.roles
         roles = ''
         for role in serverRoles:
@@ -58,6 +70,8 @@ class DevTools(commands.Cog):
 
     @commands.command()
     async def getGuilds(self, ctx):
+        """See all guilds connected to bot.
+        """
         guilds = ''
         for guild in self.client.guilds:
             guilds += f'\n {guild.name}, id: {guild.id}'
@@ -65,10 +79,17 @@ class DevTools(commands.Cog):
 
     @commands.command()
     async def clear(self, ctx, amount=1):
+        """Clear message(s) in a channel.
+
+        :param amount: Amount of messages to delete, defaults to 1
+        :type amount: int, optional
+        """
         await ctx.channel.purge(limit=(amount + 1))
 
     @commands.command()
     async def clearEvents(self, ctx):
+        """Clear all active events from discord.
+        """
 
         await ctx.send('Now clearing all events', delete_after=3.0)
 
@@ -106,11 +127,23 @@ class DevTools(commands.Cog):
 
     @commands.command()
     async def editMessage(self, ctx, messageId, *, newContent):
+        """Edit a message already posted by bot
+
+        :param messageId: The id of the message to be edited.
+        :type messageId: Str
+        :param newContent: New content of the message.
+        :type newContent: Str
+        """
         msg = await ctx.channel.fetch_message(messageId)
         await msg.edit(content=newContent)
 
     # Command check for entire cog.
     def cog_check(self, ctx):
+        """Check that the user of commands in this cog is the admin.
+
+        :return: True if user is admin, else False
+        :rtype: bool
+        """
         return ctx.author.id == self.client.config.adminId
 
 

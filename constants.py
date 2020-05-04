@@ -4,7 +4,7 @@ class Constants:
     """
 
     # Command prefix.
-    CMD_PREFIX = '!'
+    CMD_PREFIX = '!eb.'
 
     # Name of the file where data for events is stored.
     EVENT_DATA_FILENAME = 'eventData.json'  # TODO: Rename to someting sensible, and add filenames for managed messages and config data as well.

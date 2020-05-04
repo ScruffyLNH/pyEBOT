@@ -456,7 +456,7 @@ class EventCog(commands.Cog):
         else:
             return{}
 
-    async def processData(self, eventData, keys):
+    async def processData(self, eventData, keys):  # TODO: Rename? processEventCreation
 
         # Get the event organizer
         organizer = self.getEventOrganizer(eventData)
@@ -502,7 +502,7 @@ class EventCog(commands.Cog):
             channels,
             general=True
         )
-        strings = ['The following general alerts was created:\n']
+        strings = ['The following general alerts were created:\n']
         [strings.append(str(a.time) + '\n') for a in generalAlerts]
 
         self.client.logger.debug(''.join(strings))

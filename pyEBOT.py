@@ -239,7 +239,6 @@ else:
 # TODO: Make sure every assignments are encapsulated somehow to conform to
 # sphinx documentation.
 
-# TODO: BEFORE BOT CAN BE INVITED TO OFFICIAL SERVER A NEW TOKEN MUST BE MADE
 # Get client token from file.
 token = loadData('token.json')
 # Run client by passing in token.

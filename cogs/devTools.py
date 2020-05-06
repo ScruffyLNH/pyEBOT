@@ -46,6 +46,12 @@ class DevTools(commands.Cog):
     async def getChannels(self, ctx):
         """Get information on all channels in guild.
         """
+        if self.client.config.guildId is None:
+            await ctx.send(
+                'Please configure the guildId before using this command'
+            )
+            return
+
         channels = ''
         guild = self.client.get_guild(self.client.config.guildId)
         for i, channel in enumerate(guild.channels):
@@ -90,6 +96,12 @@ class DevTools(commands.Cog):
     async def clearEvents(self, ctx):
         """Clear all active events from discord.
         """
+
+        if self.client.config.guildId is None:
+            await ctx.send(
+                'Please configure the guildId before using this command'
+            )
+            return
 
         await ctx.send('Now clearing all events', delete_after=3.0)
 

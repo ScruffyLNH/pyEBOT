@@ -352,12 +352,16 @@ class EventCog(commands.Cog):
     # Coroutines
     async def assignId(self, orgEvent):
         # TODO: Docstring...
+        guild = self.client.get_guild(self.client.config.guildId)
 
         # Get the discord user object for the event organizer.
         user = self.client.get_user(orgEvent.organizer.id)
 
+        # Get the name of the main voice channel.
+        vc = guild.get_channel(self.client.config.defaultVoiceChannelId)
+
         # Make the embed object that will be posted on discor.
-        embed = orgEvent.makeEmbed(True, user)
+        embed = orgEvent.makeEmbed(True, user, mainVoiceName=vc.name)
 
         # Post the message containing the event embed to discord and get the
         # returned message object.

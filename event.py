@@ -167,6 +167,7 @@ class Event(BaseModel):
         self,
         censored,
         user,
+        mainVoiceName=None,
         includeAuthor=True,
         includePreamble=True,
         includeBody=True,
@@ -306,9 +307,12 @@ class Event(BaseModel):
                 'Sign up to gain access.'
             )
         else:
-            voiceString = (
-                ':loud_sound: Voice Channel: ---Central Lobby---'
-            )
+            if mainVoiceName is not None:
+                voiceString = (
+                    f':loud_sound: Voice Channel: {mainVoiceName}'
+                )
+            else:
+                voiceString = ''
 
         rollCallString = (
             ':mega: **ROLL CALL**: Click on the :white_check_mark: to sign up.'

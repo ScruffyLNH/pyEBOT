@@ -330,7 +330,7 @@ class serverConfig(commands.Cog):
         )
 
     @configRole.command(name='setRole')
-    async def setRole(self, ctx, roleAttribute, discordRole):
+    async def setRole(self, ctx, roleAttribute, *, discordRole):
 
         # Do verification checks.
         if not await self.guildIsSet(ctx):
@@ -346,7 +346,7 @@ class serverConfig(commands.Cog):
         await self.serializeConfig(ctx, roleAttribute, roleId)
 
     @configRole.command(name='createRole')
-    async def createRole(self, ctx, roleAttribute, discordRole):
+    async def createRole(self, ctx, roleAttribute, *, discordRole):
 
         # Do verification checks.
         if not await self.guildIsSet(ctx):

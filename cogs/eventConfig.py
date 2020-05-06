@@ -14,7 +14,11 @@ class eventConfig(commands.Cog):
 
     # Command check for entire cog.
     def cog_check(self, ctx):
-        return ctx.author.has_role == self.client.config.eventManagerRoleId
+        roleIds = [r.id for r in ctx.author.roles]
+        if self.client.config.eventManagerRoleId in roleIds:
+            return True
+        else:
+            return False
 
 
 def setup(client):

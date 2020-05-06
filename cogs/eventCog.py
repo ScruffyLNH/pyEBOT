@@ -570,7 +570,7 @@ class EventCog(commands.Cog):
         eventInstance = event.Event(
             data=eventData,
             dateAndTime=dateAndTime,
-            Deadline=deadline,
+            deadline=deadline,
             keys=keys,
             organizer=organizer,
             imageUrl=imageUrl,

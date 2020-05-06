@@ -47,7 +47,7 @@ class DevTools(commands.Cog):
         """Get information on all channels in guild.
         """
         channels = ''
-        guild = self.client.get_guild(Constants.GUILD_ID)
+        guild = self.client.get_guild(self.client.config.guildId)
         for i, channel in enumerate(guild.channels):
             channels += f'\n {channel.name}'
             channels += f'\n\tid: {channel.id},\n\ttype: {channel.type},'
@@ -93,7 +93,7 @@ class DevTools(commands.Cog):
 
         await ctx.send('Now clearing all events', delete_after=3.0)
 
-        guild = self.client.get_guild(Constants.GUILD_ID)
+        guild = self.client.get_guild(self.client.config.guildId)
         signupChannel = ctx.channel
         categoryChannels = []
 

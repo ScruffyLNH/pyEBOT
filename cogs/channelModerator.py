@@ -14,13 +14,13 @@ class ChannelModerator(commands.Cog):
     # Checks
     def isAdmin(self, ctx):
         boolean = False
-        if ctx.author.id == Constants.ADMIN_ID:
+        if ctx.author.id == self.client.config.adminId:
             boolean = True
         return boolean
 
     async def moveMessage(self, message):
 
-        chnl = self.client.get_channel(Constants.EVENT_DISCUSSION_ID)  # TODO: Refactor
+        chnl = self.client.get_channel(self.client.config.discussionChannelId)  # TODO: Refactor
         string = f"{message.author.mention} says:\n" + message.content
         botMessage = await chnl.send(string)
         await message.delete()
@@ -49,7 +49,7 @@ class ChannelModerator(commands.Cog):
                 if msg:
                     # Get the event-discussion channel
                     channel = self.client.get_channel(
-                        Constants.EVENT_DISCUSSION_ID
+                        self.client.config.discussionChannelId
                     )  # TODO: Refactor
                     discordMsg = await channel.fetch_message(msg.id)
                     await discordMsg.delete()
@@ -80,13 +80,13 @@ class ChannelModerator(commands.Cog):
         #     if message.author.id == Constants.ADMIN_ID:
         #         pass
         #     if message.author.top_role > memberRole
-        if message.channel.id == Constants.MAIN_CHANNEL_ID:
+        if message.channel.id == self.client.config.signupChannelId:
             if message.guild:
                 roles = message.author.roles
                 moderatorRole = message.guild.get_role(687134536571945000)  # TODO: refactor
             if message.author.bot:
                 pass
-            elif message.author.id == Constants.ADMIN_ID:
+            elif message.author.id == self.client.config.adminId:
                 pass
             elif moderatorRole in roles:
                 # Check if user is overriding auto-removal, by checking the
@@ -146,7 +146,7 @@ class ChannelModerator(commands.Cog):
 
     def cog_check(self, ctx):
         # Check if channel is event-discussion
-        return ctx.channel.id == Constants.EVENT_DISCUSSION_ID  # TODO: Refactor.
+        return ctx.channel.id == self.client.config.discussionChannelId
 
 
 def setup(client):

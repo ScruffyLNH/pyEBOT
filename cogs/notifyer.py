@@ -125,7 +125,7 @@ class Notifyer(commands.Cog):
         msgList.append(self.makeMentionString(alert))
         msgList.append(
             f'\n {alert.eventName} {timeRemainingString}.\n'
-            f'Sign up in <#{Constants.MAIN_CHANNEL_ID}'
+            f'Sign up in <#{self.client.config.signupChannelId}>'
         )
         msg = ''.join(msgList)
 
@@ -164,7 +164,7 @@ class Notifyer(commands.Cog):
         :param channelId: ID of the channel where message should be sent.
         :type channelId: int
         """
-        guild = self.client.get_guild(Constants.GUILD_ID)
+        guild = self.client.get_guild(self.client.config.guildId)
         channel = guild.get_channel(channelId)
         await channel.send(message)
 

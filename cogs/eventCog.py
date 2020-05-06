@@ -92,7 +92,7 @@ class EventCog(commands.Cog):
         """
 
         # Get all people in guild.
-        members = self.client.get_guild(Constants.GUILD_ID).members
+        members = self.client.get_guild(self.client.config.guildId).members
 
         # Check if the organizer exists in the member list.
         for member in members:
@@ -297,7 +297,7 @@ class EventCog(commands.Cog):
                     time=dateAndTime - delta,
                     margin=timedelta(minutes=30),
                     mentions=event.Mentions.everyone,
-                    textChannelId=Constants.EVENT_DISCUSSION_ID,  # TODO: Refactor
+                    textChannelId=self.client.config.discussionChannelId,
                     voiceChannelId=voiceChannelId
                 )
                 if deadline is not None:
@@ -386,7 +386,7 @@ class EventCog(commands.Cog):
         makeRoles = self.determineRoleCreation(eventData)
 
         # Make a list that will contain the role objects.
-        guild = self.client.get_guild(Constants.GUILD_ID)
+        guild = self.client.get_guild(self.client.config.guildId)
 
         roles = {}
         if makeRoles:
@@ -406,7 +406,7 @@ class EventCog(commands.Cog):
 
         # Get the position of main event category channel
         eventsCategoryChannel = self.client.get_channel(
-            Constants.EVENTS_CAT_CHANNEL_ID
+            self.client.config.mainCategoryChannelId
         )
         # Get the number of category channels already created from previous
         # events.
@@ -419,7 +419,7 @@ class EventCog(commands.Cog):
             eventsCategoryChannel.position + numCategoryChannels + 1
         )
 
-        guild = self.client.get_guild(Constants.GUILD_ID)
+        guild = self.client.get_guild(self.client.config.guildId)
 
         if roles:
             textOverwrites = self.makeTextOverwrites(guild, roles)
@@ -670,7 +670,7 @@ class EventCog(commands.Cog):
         await asyncio.sleep(0.5)
         print('Sheet-checking loop has started.')
 
-        self.connectToChannel(Constants.MAIN_CHANNEL_ID)
+        self.connectToChannel(self.client.config.signupChannelId)
 
 
 def setup(client):

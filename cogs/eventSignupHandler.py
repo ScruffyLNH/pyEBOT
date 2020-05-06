@@ -14,7 +14,7 @@ class EventSignupHandler(commands.Cog):
     # Events
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if payload.channel_id == Constants.MAIN_CHANNEL_ID:
+        if payload.channel_id == self.client.config.signupChannelId:
             if payload.emoji.name in Constants.REACTION_EMOJIS.values():
                 self.client.loop.create_task(
                     self.handleSignup(payload)
@@ -22,7 +22,7 @@ class EventSignupHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
-        if payload.channel_id == Constants.MAIN_CHANNEL_ID:
+        if payload.channel_id == self.client.config.signupChannelId:
             if payload.emoji.name in Constants.REACTION_EMOJIS.values():
                 self.client.loop.create_task(
                     self.handleCancellation(payload)
@@ -270,7 +270,7 @@ class EventSignupHandler(commands.Cog):
         message = await channel.fetch_message(messageId)
         guild = message.guild
         member = guild.get_member(payload.user_id)
-        memberRole = guild.get_role(Constants.MEMBER_ROLE_ID)
+        memberRole = guild.get_role(self.client.config.memberRoleId)
         emoji = payload.emoji.name
 
         # Return tuple with the needed data.

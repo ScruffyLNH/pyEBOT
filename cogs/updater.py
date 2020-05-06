@@ -43,7 +43,7 @@ class Updater(commands.Cog):
 
     async def updateEmbed(self, event):
 
-        channel = self.client.get_channel(Constants.MAIN_CHANNEL_ID)
+        channel = self.client.get_channel(self.client.config.signupChannelId)
         msg = await channel.fetch_message(event.id)
 
         # Get the discord user object for the event organizer.
@@ -72,7 +72,7 @@ class Updater(commands.Cog):
         )
 
         if event is not None:
-            guild = self.client.get_guild(Constants.GUILD_ID)
+            guild = self.client.get_guild(self.client.config.guildId)
 
             eventCh = self.client.get_channel(Constants.MAIN_CHANNEL_ID)  # TODO: Use guild.get instead of client.get
             archiveCh = self.client.get_channel(Constants.ARCHIVE_CHANNEL_ID)

@@ -110,6 +110,7 @@ class Event(BaseModel):
     deadline: datetime = None
     keys: List[str]
     organizer: Person = None
+    imageUrl: str = None
     roles: Dict[str, Role] = {}
     channels: Dict[str, Channel] = {}
     participants: List[Person] = []
@@ -375,12 +376,15 @@ class Event(BaseModel):
             )
 
         eventPost.set_thumbnail(
-            url='https://cdn.discordapp.com/attachments/684911169189838863/684922720722485248/FR17_Logo_Opaque.png'
+            url=Constants.DEF_THUMBNAIL_URL
         )
         if includeImage:
-            eventPost.set_image(
-                url='https://cdn.discordapp.com/attachments/684911073304117319/684919964049866858/A_CARRACKING_GOOD_TIME.jpg'
-            )
+            if self.imageUrl is not None:
+                eventPost.set_image(url=self.imageUrl)
+            else:
+                eventPost.set_image(
+                    url=Constants.DEF_IMAGE_URL
+                )
 
         if includeFooter:
             eventPost.set_footer(text=''.join(footerBuffer))

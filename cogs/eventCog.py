@@ -454,7 +454,40 @@ class EventCog(commands.Cog):
 
             return channels
         else:
-            return{}
+            return {}
+
+    async def getImageUrl(self, eventName):
+
+        # Get the resource channel.
+        channel = self.client.get_channel(Constants.IMG_RES_CHANNEL_ID)
+
+        # Get all messages in the event-posters resource channel.
+        messages = await channel.history(limit=30).flatten()
+        # Get url from message attachment.
+        urls = [m.attachments[0].url for m in messages]
+
+        # Create an empty dictionary that will store image names and url links
+        # as key, value pairs.
+        imageNames = {}
+        for url in urls:
+            # Split string on '/' and get the last item.
+            rawImageName = url.split('/')[-1]
+            # Get only the part of the string before the file extension, and
+            # convert to upper case.
+            imageName = rawImageName.split('.', 1)[0].upper()
+            # Replace '_' with ' '.
+            imageName = imageName.replace('_', ' ')
+            # Append key, value pairs to dictionary
+            imageNames.update({imageName: url})
+
+        for key, value in imageNames.items():
+            if key == eventName.upper():
+                imageUrl = value
+                break
+        else:
+            imageUrl = None
+
+        return imageUrl
 
     async def processData(self, eventData, keys):  # TODO: Rename? processEventCreation
 
@@ -493,6 +526,9 @@ class EventCog(commands.Cog):
         dateAndTime, deadline = self.convertDates(
             eventData, 'Date Time', 'Deadline'
         )
+
+        # Get the image url if found in resource channel.
+        imageUrl = await self.getImageUrl(eventData['Event'])
 
         # Create default general alerts list.
         generalAlerts = self.makeAlerts(
@@ -533,6 +569,7 @@ class EventCog(commands.Cog):
             Deadline=deadline,
             keys=keys,
             organizer=organizer,
+            imageUrl=imageUrl,
             roles=roles,
             channels=channels,
             lastUpdate=datetime.utcnow(),

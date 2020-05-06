@@ -270,18 +270,76 @@ class EventCog(commands.Cog):
         defaults to False
         :type participant: bool, optional
         """
+        # TODO: Refactor. Break down to smaller methods.
+        # TODO: Add time to deadline if exists somehow. Prob add fld to Alert.
 
         # Create an empty list to hold alert objects
         alerts = []
 
+        # The default timedeltas for general alerts
+        generalTds = [
+            timedelta(weeks=2),
+            timedelta(weeks=1),
+            timedelta(days=2),
+            timedelta(days=1)
+        ]
+        participantTds = [
+            timedelta(hours=4),
+            timedelta(hours=1),
+            timedelta(minutes=30),
+            timedelta(minutes=5),
+            timedelta(seconds=2)
+        ]
+
+        if deadline is not None:
+            # Add generalTds from after deadline to participantTds
+            def after(td): return dateAndTime - td >= deadline
+            extra = list(filter(after, generalTds))
+            participantTds = sorted(participantTds + extra, reverse=True)
+
+            # Remove generalTds after deadline by only keeping the before.
+            def before(td): return dateAndTime - td < deadline
+            generalTds = list(filter(before, generalTds))
+
+        activeTds = []
+        if general:
+            activeTds.extend(generalTds)
+        if participant:
+            activeTds.extend(participantTds)
+
+        activeTds = sorted(activeTds, reverse=True)
+        margin = timedelta(minutes=30) if general else timedelta(seconds=15)
+
         # Private events will always have channels.
         if channels:
-            textChannelId = channels['discussion'].id
+            if general:
+                textChannelId = self.client.config.discussionChannelId
+            else:
+                textChannelId = channels['discussion'].id
             voiceChannelId = channels['mainVoice'].id
         else:
             textChannelId = self.client.config.discussionChannelId
             voiceChannelId = self.client.config.defaultVoiceChannelId
 
+        if participant:
+            mention = event.Mentions.participants
+        if general:
+            mention = event.Mentions.everyone
+
+        for delta in activeTds:
+            if delta.total_seconds() // 60 <= 10 and participant:
+                mention = event.Mentions.participantsNotInVc
+
+            alert = event.Alert(
+                eventName=eventName,
+                time=dateAndTime - delta,
+                margin=margin,
+                mentions=mention,
+                textChannelId=textChannelId,
+                voiceChannelId=voiceChannelId
+            )
+            alerts.append(alert)
+        """
         if general:
             # TODO: Link timedeltas to config defaults.
             alertTimesBeforeStart = [
@@ -346,6 +404,7 @@ class EventCog(commands.Cog):
                     voiceChannelId=voiceChannelId
                 )
                 alerts.append(alert)
+            """
 
         return alerts
 

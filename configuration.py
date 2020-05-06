@@ -11,6 +11,7 @@ class Configuration(BaseModel):
     defaultVoiceChannelId: int = None
     adminChannelId: int = None
     adminId: int = 312381318891700224
+    eventManagerId: int = None
     eventManagerRoleId: int = None
     memberRoleId: int = None
     collaboratorRoleId: int = None

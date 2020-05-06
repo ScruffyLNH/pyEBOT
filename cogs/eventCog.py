@@ -101,7 +101,7 @@ class EventCog(commands.Cog):
                 break
         else:
             # Defaults to event manager if another organizer was not found.
-            member = self.client.get_user(Constants.EVENT_MANAGER_ID)
+            member = self.client.get_user(self.client.config.eventManagerId)
             p = event.Person(id=member.id, name=member.display_name)
 
         return p

@@ -219,6 +219,20 @@ class serverConfig(commands.Cog):
 
         await ctx.send(f'Guild ID ({guildId}) has been set.')
 
+    @commands.command(name='setEventManagerId')
+    async def setEventManagerId(self, ctx, id):
+        """Sets the ID of the event manager.
+        """
+        user = self.client.get_user(int(id))
+
+        if user:
+            await ctx.send(f'Event manager id ({id}) set successfully.')
+            self.client.config.eventManagerId = int(id)
+            configData = self.client.config.json(indent=2)
+            saveData(Constants.CONFIG_DATA_FILENAME, configData)
+        else:
+            await ctx.send('Could not find any user with that ID.')
+
     @commands.group(name='configureChannels', invoke_without_command=True)
     async def configChn(self, ctx):
         """Command group for configuring channels. Use help command for sub commands.

@@ -37,7 +37,7 @@ if __name__ == "__main__":
         filename=Constants.LOG_FILENAME,
         mode='a',  # Append mode? #TODO: Verify
         maxBytes=8*1024*1024,  # Max size is 8MB
-        backupCount=2,
+        backupCount=1,
         encoding='utf-8'
     )
     handler.setFormatter(

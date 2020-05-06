@@ -279,8 +279,8 @@ class EventCog(commands.Cog):
             textChannelId = channels['discussion'].id
             voiceChannelId = channels['mainVoice'].id
         else:
-            textChannelId = Constants.EVENT_DISCUSSION_ID  # TODO: Change this to lobby channel when config is implemented.
-            voiceChannelId = Constants.EVENT_VOICE_ID
+            textChannelId = self.client.config.discussionChannelId
+            voiceChannelId = self.client.config.defaultVoiceChannelId
 
         if general:
             # TODO: Link timedeltas to config defaults.

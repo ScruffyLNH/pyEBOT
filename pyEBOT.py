@@ -190,8 +190,8 @@ async def loadAll(ctx):
                 '__init__.py',
                 'experimentalCog.py',  # TODO: Clean up exclusion list.
                 'messageWithoutCommand.py',
-                'asyncCog.py'
-                'serverConfig.py'  # TODO: Check what cogs are already loaded and exclude that way.
+                'asyncCog.py',
+                'serverConfig.py',  # TODO: Check what cogs are already loaded and exclude that way.
                 'devTools.py'
             ]
             if filename not in exclusionList:

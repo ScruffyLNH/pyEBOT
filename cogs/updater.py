@@ -74,14 +74,18 @@ class Updater(commands.Cog):
         if event is not None:
             guild = self.client.get_guild(self.client.config.guildId)
 
-            eventCh = self.client.get_channel(Constants.MAIN_CHANNEL_ID)  # TODO: Use guild.get instead of client.get
-            archiveCh = self.client.get_channel(Constants.ARCHIVE_CHANNEL_ID)
+            eventCh = self.client.get_channel(
+                self.client.config.signupChannelId
+            )
+            archiveCh = guild.get_channel(self.client.config.archiveChannelId)
 
             # Delete roles and channels if they exist.
             for role in event.roles.values():
                 # Get discord roles associated with event.
                 dRole = guild.get_role(role.id)
                 await dRole.delete()
+
+            # TODO: Get all the channels in the event category and delete those.
             for channel in event.channels.values():
                 # Get discord channels associated with event.
                 dChannel = guild.get_channel(channel.id)

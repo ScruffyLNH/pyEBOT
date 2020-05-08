@@ -12,12 +12,12 @@ class serverConfig(commands.Cog):
         self.client = client
 
     # Functions and coroutines
-    def tryParseInt(self, input):
+    def tryParseInt(self, inputValue):
         try:
-            r = int(input)
+            r = int(inputValue)
             return r, True
         except ValueError:
-            r = input
+            r = inputValue
             return r, False
 
     def verifyChannelId(self, guild, id):
@@ -116,7 +116,6 @@ class serverConfig(commands.Cog):
 
     async def roleExists(self, ctx, roleRef, expectedResult=False):
         guild = self.client.get_guild(self.client.config.guildId)
-
         (roleRef, isInt) = self.tryParseInt(roleRef)
 
         if isInt:
@@ -200,7 +199,7 @@ class serverConfig(commands.Cog):
         guild = self.client.get_guild(self.client.config.guildId)
         role = self.verifyRoleName(guild, roleName)
         if role is None:
-            r = await guild.create_role
+            r = await guild.create_role(name=roleName)
             return r.id
         return None
 
@@ -351,14 +350,14 @@ class serverConfig(commands.Cog):
         # Do verification checks.
         if not await self.guildIsSet(ctx):
             return
-        if await self.roleExists(self, ctx, discordRole):
+        if await self.roleExists(ctx, discordRole):
             return
-        if await self.attributeFound(ctx, roleAttribute):
+        if not await self.attributeFound(ctx, roleAttribute):
             return
         if not await self.attrTypeCorrect(ctx, roleAttribute, 'Role'):
             return
 
-        roleId = self.processCreateRoleRequest(discordRole)
+        roleId = await self.processCreateRoleRequest(discordRole)
 
         await self.serializeConfig(ctx, roleAttribute, roleId)
 

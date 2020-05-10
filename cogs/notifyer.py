@@ -83,15 +83,13 @@ class Notifyer(commands.Cog):
         :rtype: string
         """
         delta = time - datetime.utcnow()
-        # Check the time of day and add an extra day if now time-of-day
-        # is greater than input time-of-day.
-        if(
-            datetime.utcnow().time() > time.time() and not
-            datetime.utcnow() > time
-        ):
-            delta += timedelta(days=1)
+
+        # Round time remaining to nearest 5 minutes.
+        delta = self.roundTimeDelta(delta)
+
         days = delta.days
-        hours, minutes = self.timeDeltaToHoursMins(delta)
+        hours = delta.seconds // 3600
+        minutes = (delta.seconds - hours * 3600) // 60
 
         if days == 1:
             timeRemainingString = 'starts in 1 day'

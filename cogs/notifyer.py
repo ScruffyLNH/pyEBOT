@@ -19,6 +19,7 @@ class Notifyer(commands.Cog):
 
         try:
             self.participantsNotifyer.start()
+            self.deadlineNotifyer.start()
             self.eventNotifyer.start()
             self.managerNotifyer.start()
         except RuntimeError as e:
@@ -31,6 +32,7 @@ class Notifyer(commands.Cog):
     # Stop running loops if the cog is unloaded.
     def cog_unload(self):
         self.participantsNotifyer.cancel()
+        self.deadlineNotifyer.cancel()
         self.eventNotifyer.cancel()
         self.managerNotifyer.cancel()
 
@@ -133,6 +135,31 @@ class Notifyer(commands.Cog):
             self.sendNotification(msg, alert.textChannelId)
         )
 
+    def handleDeadlineNotification(self, alert, eventTime):
+
+        delta = eventTime - datetime.utcnow()
+        delta = self.roundTimeDelta(delta)
+        days = delta.days
+        hours = delta.seconds // 3600
+        minutes = (delta.seconds - hours * 3600) // 60
+        msgList = []
+        msgList.append(self.makeMentionString(alert))
+        msgList.append('\n')
+        if days > 0:
+            msgList.append(
+                f"Signup deadline for {alert.eventName} is in {days} day(s)."
+            )
+        else:
+            msgList.append(
+                f"Signup deadline for {alert.eventName} is in "
+                f"{hours} hour(s), {minutes} minute(s)."
+            )
+        msg = ''.join(msgList)
+
+        self.client.loop.create_task(
+            self.sendNotification(msg, alert.textChannelId)
+        )
+
     def handleParticipantNotification(
         self,
         alert,
@@ -208,7 +235,37 @@ class Notifyer(commands.Cog):
         print('Participants notifyer loop is waiting for client to get ready.')
         await self.client.wait_until_ready()
         await asyncio.sleep(0.6)
-        print('Notification-checking loop has started.')
+        print('Participants notifyer loop has started.')
+
+    @tasks.loop(seconds=13)
+    async def deadlineNotifyer(self):
+        for orgEvent in self.client.orgEvents.events:
+            discardAlerts = []
+            for alert in orgEvent.notifications.deadlineAlerts:
+                if(
+                    datetime.utcnow() > alert.time and
+                    datetime.utcnow() - alert.margin < alert.time
+                ):
+                    self.handleDeadlineNotification(alert, orgEvent.deadline)
+
+                if datetime.utcnow() > alert.time:
+                    discardAlerts.append(alert)
+
+            for alert in discardAlerts:
+                orgEvent.notifications.deadlineAlerts.remove(alert)
+
+            if discardAlerts:
+                utility.saveData(
+                    Constants.EVENT_DATA_FILENAME,
+                    self.client.orgEvents.json(indent=2)
+                )
+
+    @deadlineNotifyer.before_loop
+    async def before_deadlineNotifyer(self):
+        print('Deadline notifyer loop is waiting for client to get ready.')
+        await self.client.wait_until_ready()
+        await asyncio.sleep(0.6)
+        print('Deadline notifyer loop has started.')
 
     @tasks.loop(seconds=83)
     async def eventNotifyer(self):

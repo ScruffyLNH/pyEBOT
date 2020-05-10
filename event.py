@@ -97,6 +97,7 @@ class Alert(BaseModel):
 class Notifications(BaseModel):
 
     generalAlerts: List[Alert]
+    deadlineAlerts: List[Alert]
     participantAlerts: List[Alert]
     sentAlerts: List[Alert] = []
 

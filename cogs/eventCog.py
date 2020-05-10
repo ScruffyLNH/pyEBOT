@@ -253,6 +253,7 @@ class EventCog(commands.Cog):
         deadline,
         channels,
         general=False,
+        deadlineAlerts=False,
         participant=False
     ):
         """Create alerts for notifying members and event participants
@@ -283,9 +284,12 @@ class EventCog(commands.Cog):
             timedelta(days=2),
             timedelta(days=1)
         ]
+        deadlineTds = [
+            timedelta(hours=2),
+            timedelta(minutes=10)
+        ]
         participantTds = [
-            timedelta(hours=4),
-            timedelta(hours=1),
+            timedelta(hours=2),
             timedelta(minutes=30),
             timedelta(minutes=5),
             timedelta(seconds=2)
@@ -301,9 +305,15 @@ class EventCog(commands.Cog):
             def before(td): return dateAndTime - td < deadline
             generalTds = list(filter(before, generalTds))
 
+            # Add timedelta between deadline and event start to deadlineTds
+            delta = dateAndTime - deadline
+            deadlineTds = list(map(lambda d: delta + d, deadlineTds))
+
         activeTds = []
         if general:
             activeTds.extend(generalTds)
+        if deadlineAlerts:
+            activeTds.extend(deadlineTds)
         if participant:
             activeTds.extend(participantTds)
 
@@ -312,7 +322,7 @@ class EventCog(commands.Cog):
 
         # Private events will always have channels.
         if channels:
-            if general:
+            if general or deadlineAlerts:
                 textChannelId = self.client.config.discussionChannelId
             else:
                 textChannelId = channels['discussion'].id
@@ -323,7 +333,7 @@ class EventCog(commands.Cog):
 
         if participant:
             mention = event.Mentions.participants
-        if general:
+        if general or deadlineAlerts:
             mention = event.Mentions.everyone
 
         for delta in activeTds:
@@ -606,6 +616,22 @@ class EventCog(commands.Cog):
 
         self.client.logger.debug(''.join(strings))
 
+        if deadline is not None:
+            deadlineAlerts = self.makeAlerts(
+                eventData['Event'],
+                dateAndTime,
+                deadline,
+                channels,
+                deadlineAlerts=True
+            )
+
+            strings = ['The following deadline alerts were created:\n']
+            [strings.append(str(a.time) + '\n') for a in deadlineAlerts]
+
+            self.client.logger.debug(''.join(strings))
+        else:
+            deadlineAlerts = []
+
         # Create default participant alerts list.
         participantAlerts = self.makeAlerts(
             eventData['Event'],
@@ -622,6 +648,7 @@ class EventCog(commands.Cog):
         # Create notifications for event.
         notifications = event.Notifications(
             generalAlerts=generalAlerts,
+            deadlineAlerts=deadlineAlerts,
             participantAlerts=participantAlerts
         )
 

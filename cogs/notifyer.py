@@ -104,7 +104,7 @@ class Notifyer(commands.Cog):
                 roleMentions = [f'<@&{role.id}>' for role in roles]
                 mentions = ', '.join(roleMentions)
             else:
-                pMentions = [f'<@{p.id}>' for p in participants]
+                pMentions = [f'<@{p.id}>' for p in participants if p.active]
                 mentions = ', '.join(pMentions)
         elif m == event.Mentions.participantsNotInVc:
             # Get the events voice channel and aquire all members from it.
@@ -114,7 +114,9 @@ class Notifyer(commands.Cog):
             idsInVc = [m.id for m in vcMembers]
             # Remove voice channel member ids from event participant to be
             # able to only mention participants not in voice channel.
-            idsLeft = [p.id for p in participants if p.id not in idsInVc]
+            idsLeft = [
+                p.id for p in participants if p.id not in idsInVc and p.active
+            ]
             pMentions = [f'<@{id}>' for id in idsLeft]
             mentions = ', '.join(pMentions)
 

@@ -49,7 +49,13 @@ class Updater(commands.Cog):
         # Get the discord user object for the event organizer.
         user = self.client.get_user(event.organizer.id)
 
-        embed = event.makeEmbed(True, user)
+        if event.deadline is not None:
+            if datetime.utcnow() > event.deadline:
+                embed = event.makeEmbed(True, user, includeRollCall=False)
+            else:
+                embed = event.makeEmbed(True, user)
+        else:
+            embed = event.makeEmbed(True, user)
 
         await msg.edit(embed=embed)
 

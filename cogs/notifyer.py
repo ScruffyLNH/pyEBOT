@@ -37,6 +37,24 @@ class Notifyer(commands.Cog):
         self.managerNotifyer.cancel()
 
     # Methods
+    def roundTimeDelta(self, delta, roundingDelta=timedelta(minutes=5)):
+        """Rounds a timedelta to the nearest multiple of another timedelta.
+
+        :param delta: The timedelta to round.
+        :type delta: datetime.timedelta
+        :param roundingDelta: Rounding value, defaults to timedelta(minutes=5)
+        :type roundingDelta: datetime.timedelta, optional
+        :return: Rounded timedelta
+        :rtype: datetime.timedelta
+        """
+        multiples = delta // roundingDelta
+        remainder = delta - roundingDelta * multiples
+        delta = roundingDelta * multiples
+        if remainder >= roundingDelta / 2:
+            delta += roundingDelta
+
+        return delta
+
     def timeDeltaToHoursMins(self, td):  # TODO: Move to utility?
         """Converts datetime.timedelta object to remaining hours and minutes.
 

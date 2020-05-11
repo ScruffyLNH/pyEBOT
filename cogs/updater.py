@@ -91,11 +91,22 @@ class Updater(commands.Cog):
                 dRole = guild.get_role(role.id)
                 await dRole.delete()
 
+            if event.channels is not None:
+                categoryChannel = guild.get_channel(
+                    event.channels['category'].id
+                )
+                for channel in categoryChannel.channels:
+                    await channel.delete()
+
+                await categoryChannel.delete()
+
+            """
             # TODO: Get all the channels in the event category and delete those.
             for channel in event.channels.values():
                 # Get discord channels associated with event.
                 dChannel = guild.get_channel(channel.id)
                 await dChannel.delete()
+            """
 
             # Delte event embed from event channel.
             msg = await eventCh.fetch_message(event.id)

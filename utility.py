@@ -1,4 +1,5 @@
 import json
+import os
 import logging
 
 
@@ -11,8 +12,16 @@ def loadData(fileName):
     :rtype: var, None
     """
     try:
+        assert os.stat(fileName).st_size != 0
         with open(fileName) as f:
             data = json.load(f)
+    except AssertionError:
+        logger = logging.getLogger('discord')
+        logger.info(
+            'Exception thrown when trying to load data.\n'
+            f'Assertion failed: {fileName} should not be empty.\n'
+        )
+        data = None
     except FileNotFoundError as e:
         logger = logging.getLogger('discord')
         logger.info(

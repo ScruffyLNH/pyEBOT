@@ -464,10 +464,12 @@ class EventCog(commands.Cog):
         roles = {}
         if makeRoles:
             spectatorRole = await guild.create_role(
-                name=eventData['Event'] + ' spectator'
+                name=eventData['Event'] + ' spectators',
+                mentionable=True
             )
             participantRole = await guild.create_role(
-                name=eventData['Event'] + ' participant'
+                name=eventData['Event'] + ' participants',
+                mentionable=True
             )
 
             roles['spectator'] = spectatorRole

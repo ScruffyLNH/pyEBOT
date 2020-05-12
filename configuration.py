@@ -13,5 +13,6 @@ class Configuration(BaseModel):
     adminId: int = 312381318891700224
     eventManagerId: int = None
     eventManagerRoleId: int = None
+    eventModeratorRoleId: int = None
     memberRoleId: int = None
     collaboratorRoleId: int = None

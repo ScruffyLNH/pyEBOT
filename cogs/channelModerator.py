@@ -83,7 +83,9 @@ class ChannelModerator(commands.Cog):
         if message.channel.id == self.client.config.signupChannelId:
             if message.guild:
                 roles = message.author.roles
-                moderatorRole = message.guild.get_role(687134536571945000)  # TODO: refactor
+                moderatorRole = message.guild.get_role(
+                    self.client.config.eventModeratorRoleId
+                )  # TODO: Implement this functionality.
             if message.author.bot:
                 pass
             elif message.author.id == self.client.config.adminId:

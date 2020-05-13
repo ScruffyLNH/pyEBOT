@@ -121,7 +121,8 @@ class Updater(commands.Cog):
             self.client.orgEvents.events.remove(event)
 
             # Save data
-            saveData(Constants.EVENT_DATA_FILENAME, self.client.orgEvents)
+            eventData = self.client.orgEvents.json(indent=2)
+            saveData(Constants.EVENT_DATA_FILENAME, eventData)
 
     @tasks.loop(seconds=31)
     async def updateChecking(self):

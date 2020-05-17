@@ -82,6 +82,14 @@ class EventCog(commands.Cog):
         index = eventObject.data['idIndex']
         sheets.setCell(*index, id)
 
+    def getEventType(self, eventData):
+
+        for eType in event.EventType:
+            if eventData['Event Type'] == eType.name:
+                eventType = getattr(event.EventType, eType.name)
+                return eventType
+        return None
+
     def getEventOrganizer(self, eventData):
         """Gets the event organizer from all members in discord server.
 
@@ -477,7 +485,12 @@ class EventCog(commands.Cog):
 
         return roles
 
-    async def createChannels(self, eventData, roles):
+    async def createChannels(self, eventData, roles, eventType=None):
+
+        if eventType == event.EventType.daymar:
+            daymar = True
+        else:
+            daymar = False
 
         # Get the position of main event category channel
         eventsCategoryChannel = self.client.get_channel(
@@ -515,10 +528,35 @@ class EventCog(commands.Cog):
                 'Discussion',
                 overwrites=textOverwrites
             )
+            mainVoiceName = 'Event' if not daymar else 'DAYMAR MAIN VOICE'
             mainVoiceChannel = await categoryChannel.create_voice_channel(
-                'Event',
+                mainVoiceName,
                 overwrites=voiceOverwrites
             )
+
+            if daymar:
+                extraTextChannels = [
+                    'daymar-roster',
+                    'general-info'
+                ]
+                extraVoiceChannels = [
+                    'Command',
+                    'Team 1',
+                    'Team 2',
+                    'Team 3',
+                    'Team 4',
+                    'Team 5'
+                ]
+                for name in extraTextChannels:
+                    await categoryChannel.create_text_channel(
+                        name,
+                        overwrites=textOverwrites
+                    )
+                for name in extraVoiceChannels:
+                    await categoryChannel.create_voice_channel(
+                        name,
+                        overwrites=voiceOverwrites
+                    )
 
             channels = {
                 'category': categoryChannel,
@@ -566,6 +604,9 @@ class EventCog(commands.Cog):
 
     async def processData(self, eventData, keys):  # TODO: Rename? processEventCreation
 
+        # Get the event type.
+        eventType = self.getEventType(eventData)
+
         # Get the event organizer
         organizer = self.getEventOrganizer(eventData)
 
@@ -586,7 +627,11 @@ class EventCog(commands.Cog):
         else:
             roles = {}
 
-        discordChannels = await self.createChannels(eventData, discordRoles)
+        discordChannels = await self.createChannels(
+            eventData,
+            discordRoles,
+            eventType=eventType
+        )
 
         # Convert discordChannels to internal channels for persistent storage.
         channels = {}
@@ -657,6 +702,7 @@ class EventCog(commands.Cog):
         # Instanciate event object.
         eventInstance = event.Event(
             data=eventData,
+            eventType=eventType,
             dateAndTime=dateAndTime,
             deadline=deadline,
             keys=keys,

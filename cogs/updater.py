@@ -192,6 +192,7 @@ class Updater(commands.Cog):
 
             # Run update on embed message.
             if update:
+                # TODO: If daymar event, append info to daymar sheet.
                 await self.client.loop.create_task(
                     self.updateEmbed(eventMatch['new'])
                 )
@@ -202,6 +203,7 @@ class Updater(commands.Cog):
             ).total_seconds() / 3600.0
             # Archive event if event has passed by 12 hours.
             if hoursLeft < -12:
+                # TODO: Make daymar sheet csv file and send to recipiant list.
                 await self.client.loop.create_task(
                     self.archiveEvent(eventMatch['new'].id)
                 )

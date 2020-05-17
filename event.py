@@ -34,6 +34,12 @@ class ChannelType(Enum):
     store = 6
 
 
+class EventType(Enum):
+
+    regular = 0
+    daymar = 1
+
+
 class Channel(BaseModel):
 
     id: int
@@ -107,6 +113,7 @@ class Event(BaseModel):
 
     id: int = None
     data: dict
+    eventType: EventType = None
     dateAndTime: datetime = None
     deadline: datetime = None
     keys: List[str]

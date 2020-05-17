@@ -1,4 +1,5 @@
 import gspread  # Module needed for google sheets.
+import csv
 from oauth2client.service_account import ServiceAccountCredentials
 # from pprint import pprint  # Print pretty messages.
 
@@ -30,42 +31,74 @@ pprint(data)
 
 spreadSheet = client.open("EVENTS")
 sheet = spreadSheet.worksheet('Discord Parsed Data')
+# TODO: Get the correct daymar sheet
+daymarSpreadSheet = client.open_by_key(
+    '1oRsiSXzeJKMczrEZtEhDLcnC_tPNjtLD7n3MqftfZbc'
+)
+daymarSheet = daymarSpreadSheet.worksheet('SECURITY')
 
 
 # Functions
-def getCell(rowIndex, colIndex):
-    cell = sheet.cell(rowIndex, colIndex)
+def getCell(rowIndex, colIndex, daymar=False):
+    if daymar:
+        cell = daymarSheet.cell(rowIndex, colIndex)
+    else:
+        cell = sheet.cell(rowIndex, colIndex)
     return cell.value
 
 
-def setCell(rowIndex, colIndex, value):
-    sheet.update_cell(rowIndex, colIndex, value)
+def setCell(rowIndex, colIndex, value, daymar=False):
+    if daymar:
+        daymarSheet.update_cell(rowIndex, colIndex, value)
+    else:
+        sheet.update_cell(rowIndex, colIndex, value)
 
 
-def getAll():
-    return sheet.get_all_records()
-    # TODO: Commented out to save on sheets api call return.
-    # now returns dummy data. Revert to normal once testing is complete
-    # dummyList = []
-    # for i in range(5):
-    #     data = {
-    #         'Event': f'event{i}',
-    #         'Date': f'date{i}',
-    #         'Time': f'time{i}',
-    #         'Description': f'description{i}',
-    #         'Participants': f'participants{i}',
-    #         'MessageId': f''}
-    #     dummyList.append(data)
-    # return dummyList
+def getAll(daymar=False):
+
+    if daymar:
+        return daymarSheet.get_all_records()
+    else:
+        return sheet.get_all_records()
 
 
-def getCol(index):
-    return sheet.col_values(index)
+def getCol(index, daymar=False):
+
+    if daymar:
+        return daymarSheet.col_values(index)
+    else:
+        return sheet.col_values(index)
 
 
-def getRow(rowNum):
-    data = sheet.row_values(rowNum)
+def getRow(rowNum, daymar=False):
+
+    if daymar:
+        data = daymarSheet.row_values(rowNum)
+    else:
+        data = sheet.row_values(rowNum)
     return data
+
+
+def deleteRows(startIndex, rowNum=1, daymar=False):
+
+    if rowNum < 1:
+        return
+
+    if daymar:
+        daymarSheet.delete_dimension(
+            'ROWS', startIndex, startIndex + rowNum - 1
+        )
+    else:
+        sheet.delete_dimension('ROWS', startIndex, startIndex + rowNum - 1)
+
+
+def exportCsv(fileName):
+
+    with open(fileName, 'w', newline='') as fp:
+        writer = csv.writer(fp)
+        writer.writerows(daymarSheet.get_all_values())
+
+        return fp
 
 
 # This must run periodically to avoid loosing authentication. Timeout is 1hr.

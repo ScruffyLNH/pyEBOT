@@ -82,6 +82,16 @@ class Person(BaseModel):
         return foundRole
 
 
+class GuildMember(Person):
+
+    rsiHandle: str = None
+
+
+class GuildMembers(BaseModel):
+
+    members: List[GuildMember] = []
+
+
 class Mentions(Enum):
 
     none = 0

@@ -74,6 +74,11 @@ class EventSignupHandler(commands.Cog):
         # Update embed in discord.
         self.makeUpdate(orgEvent)
 
+        # Do daymar specific actions if daymar event.
+        if orgEvent.eventType == event.EventType.daymar:
+            cog = self.client.get_cog('Daymar')
+            cog.clearParticipant(member)
+
     async def handleParticipationRequest(self, payload):
         """
         messageId = payload.message_id
@@ -170,7 +175,44 @@ class EventSignupHandler(commands.Cog):
         if 'discussion' in orgEvent.channels.keys():
             await self.sendWelcomeMsg(member, orgEvent.channels['discussion'])
 
-        # TODO: Update the embed.
+        # Do extra actions if the event is a daymar event.
+        if orgEvent.eventType == event.EventType.daymar:
+
+            # Search through guild member record and add person if not found.
+            guildMembers = self.client.guildMembers.members
+            for m in guildMembers:
+                if m.id == member.id:
+                    guildMember = m
+                    break
+            else:
+                guildMember = None
+
+            if guildMember is None:
+                guildMember = event.GuildMember(
+                    id=member.id,
+                    name=member.name,
+                )
+                guildMembers.append(guildMember)
+                utility.saveData(
+                    Constants.GUILD_MEMBER_DATA_FILENAME,
+                    self.client.guildMembers.json(indent=2)
+                )
+            cog = self.client.get_cog('Daymar')
+            if guildMember.rsiHandle is not None:
+                cog.addParticipant(guildMember)
+            else:
+                # Ask user to confirm rsi handle.
+                # TODO: Link to command more robustly
+                await member.send(
+                    'In order for Daymar organizers to invite you to their '
+                    'server they need to know your in game name (RSI handle). '
+                    'Please specify your RSI handle by using the '
+                    '!eb.set_rsi_handle command.\n'
+                    'For detailed help with this command type '
+                    '!eb.help set_rsi_handle'
+
+                )
+                cog.addParticipant(guildMember)
 
     async def eventHasPassed(self, data):
         # TODO: docstring.

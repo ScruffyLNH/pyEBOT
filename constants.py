@@ -15,6 +15,9 @@ class Constants:
     # Name of the file where configuration data is stored.
     CONFIG_DATA_FILENAME = 'config.json'
 
+    # Name of file where guild members are stored.
+    GUILD_MEMBER_DATA_FILENAME = 'members.json'
+
     # Name of the log file.
     LOG_FILENAME = 'mainLogFile.log'
 

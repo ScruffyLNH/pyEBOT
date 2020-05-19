@@ -751,6 +751,11 @@ class EventCog(commands.Cog):
         # Write IDs back to google sheets.
         self.writeIdToSheets(eventInstance)
 
+        # If event is a daymar event the daymar spreadsheet is cleared.
+        if eventInstance.eventType == event.EventType.daymar:
+            cog = self.client.get_cog('Daymar')
+            cog.clearDaymarSheet()
+
         # Append the event to the clients list of events
         self.client.orgEvents.events.append(registeredEvent)
         utility.saveData(

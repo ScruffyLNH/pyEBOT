@@ -46,6 +46,7 @@ if __name__ == "__main__":
     logger.addHandler(handler)
     client.logger = logger
 
+    # TODO: Clean up wet code. Deserialization should done in a function.
     # Deserialize configuration data.
     configData = loadData(Constants.CONFIG_DATA_FILENAME)
     if configData is None:
@@ -69,7 +70,7 @@ if __name__ == "__main__":
                 'Config data was found, but could not be loaded. '
                 'Starting clean'
             )
-            # TODO: Clean up wet code.
+
             client.config = configuration.Configuration()
             configData = client.config.json(indent=2)
             saveData(Constants.CONFIG_DATA_FILENAME, configData)
@@ -109,6 +110,31 @@ if __name__ == "__main__":
             client.orgEvents = event.OrgEvents()
             eventData = client.orgEvents.json(indent=2)
             saveData(Constants.EVENT_DATA_FILENAME, eventData)
+
+    # Deserialize guild member data.
+    guildMemberData = loadData(Constants.GUILD_MEMBER_DATA_FILENAME)
+    if guildMemberData is None:
+        client.logger.info('Guild member data not found.')
+        client.guildMembers = event.GuildMembers()
+        guildMemberData = client.guildMembers.json(indent=2)
+        saveData(Constants.GUILD_MEMBER_DATA_FILENAME, guildMemberData)
+    else:
+        try:
+            client.guildMembers = event.GuildMembers.parse_obj(
+                guildMemberData
+            )
+            client.logger.info(
+                'Guild member data successfully parsed.'
+            )
+        except ValidationError as e:
+            client.logger.warning(
+                'Exception thrown, error message is as follows:\n'
+                f'{e}\n'
+                'Guild member record was found, but could not be loaded. '
+            )
+            client.guildMembers = event.GuildMembers()
+            guildMemberData = client.guildMembers.json(indent=2)
+            saveData(Constants.GUILD_MEMBER_DATA_FILENAME, guildMemberData)
 
     messageData = loadData(Constants.MESSAGE_DATA_FILENAME)
     if messageData is None:

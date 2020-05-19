@@ -113,9 +113,14 @@ class Updater(commands.Cog):
             await msg.delete()
 
             # Send event embed to archive channel.
-            user = self.client.get_user(event.organizer.id)
-            embed = event.makeEmbed(True, user, includeRollCall=False)
-            await archiveCh.send(embed=embed)
+            # DO NOT SEND PRIVATE EVENTS TO ARCHIVE.
+            # TODO: This will need to change at some point.
+            if event.data['Members Only'].upper() == 'YES':
+                pass
+            else:
+                user = self.client.get_user(event.organizer.id)
+                embed = event.makeEmbed(True, user, includeRollCall=False)
+                await archiveCh.send(embed=embed)
 
             # Remove event from event list if found.
             self.client.orgEvents.events.remove(event)

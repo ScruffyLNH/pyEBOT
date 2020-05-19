@@ -18,6 +18,11 @@ class Constants:
     # Name of file where guild members are stored.
     GUILD_MEMBER_DATA_FILENAME = 'members.json'
 
+    # Ids of people with elevated access for daymar events.
+    DAYMAR_ELEVATED_ACCESS_IDS = [
+        312381318891700224  # Scruffy_90
+    ]
+
     # Name of the log file.
     LOG_FILENAME = 'mainLogFile.log'
 

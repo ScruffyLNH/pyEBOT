@@ -14,10 +14,13 @@ class eventConfig(commands.Cog):
 
     # Command check for entire cog.
     def cog_check(self, ctx):
-        roleIds = [r.id for r in ctx.author.roles]
-        if self.client.config.eventManagerRoleId in roleIds:
-            return True
-        else:
+        try:
+            roleIds = [r.id for r in ctx.author.roles]
+            if self.client.config.eventManagerRoleId in roleIds:
+                return True
+            else:
+                return False
+        except AttributeError:
             return False
 
 

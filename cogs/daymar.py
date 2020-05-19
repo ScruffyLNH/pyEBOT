@@ -12,11 +12,16 @@ class Daymar(commands.Cog):
         self.client = client
 
     def addParticipant(self, member, memberType='Security'):
-        rsiCol = 1
-        idCol = 5
+        rsiCol = 0
+        serverCol = 2
+        idCol = 4
+
+        sheetData = sheets.getAllValues(daymar=True)
 
         # Get the rsi names column.
-        rsiNames = sheets.getCol(rsiCol, daymar=True)
+        rsiNames = [row[rsiCol] for row in sheetData]
+        serverNums = [row[serverCol] for row in sheetData]
+        memberIds = [row[idCol] for row in sheetData]
 
         # Get available row index
         try:
@@ -25,29 +30,28 @@ class Daymar(commands.Cog):
             rowIndex = len(rsiNames)
 
         # Check if user already exists in sheet.
-        memberIds = sheets.getCol(idCol, daymar=True)
         for index, id in enumerate(memberIds):
             try:
                 pId = int(id)
                 if member.id == pId:
                     rowIndex = index
+                    server = int(serverNums[index])
                     break
             except ValueError:
-                pass
+                server = ''
 
         startIndex = (rowIndex, 0)
         endIndex = (rowIndex, 4)
 
         # Write values to sheet.
         if member.rsiHandle is not None:
-            data = [member.rsiHandle, memberType, '', '', str(member.id)]
+            data = [member.rsiHandle, memberType, server, '', str(member.id)]
             sheets.setRange(startIndex, endIndex, [data], daymar=True)
-
         else:
             data = [
                 member.name,
                 memberType,
-                '',
+                server,
                 'RSI handle not verified',
                 str(member.id)
             ]

@@ -94,6 +94,16 @@ def getAll(daymar=False, daymarOverview=False):
         return sheet.get_all_records()
 
 
+def getAllValues(daymar=False, daymarOverview=False):
+
+    if daymar:
+        return daymarSheet.get_all_values()
+    elif daymarOverview:
+        return daymarOverviewSheet.get_all_values()
+    else:
+        return sheet.get_all_values()
+
+
 def getCol(index, daymar=False):
 
     if daymar:

@@ -1,6 +1,7 @@
 import discord # noqa
 import asyncio
 import copy
+import event as evnt
 from utility import saveData
 from constants import Constants
 from datetime import datetime
@@ -49,13 +50,22 @@ class Updater(commands.Cog):
         # Get the discord user object for the event organizer.
         user = self.client.get_user(event.organizer.id)
 
+        if event.eventType == evnt.EventType.daymar:
+            showFooter = False
+        else:
+            showFooter = True
+
         if event.deadline is not None:
             if datetime.utcnow() > event.deadline:
-                embed = event.makeEmbed(True, user, includeRollCall=False)
+                embed = event.makeEmbed(
+                    True,
+                    user,
+                    includeRollCall=False,
+                    includeFooter=showFooter)
             else:
-                embed = event.makeEmbed(True, user)
+                embed = event.makeEmbed(True, user, includeFooter=showFooter)
         else:
-            embed = event.makeEmbed(True, user)
+            embed = event.makeEmbed(True, user, includeFooter=showFooter)
 
         await msg.edit(embed=embed)
 

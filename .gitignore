@@ -24,6 +24,7 @@ env/*
 eventData.json
 messageData.json
 config.json
+members.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

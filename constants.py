@@ -20,7 +20,8 @@ class Constants:
 
     # Ids of people with elevated access for daymar events.
     DAYMAR_ELEVATED_ACCESS_IDS = [
-        312381318891700224  # Scruffy_90
+        312381318891700224,  # Scruffy_90
+        287978543336390656  # Cords1
     ]
 
     # Name of the log file.

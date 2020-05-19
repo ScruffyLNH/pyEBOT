@@ -218,7 +218,7 @@ class EventSignupHandler(commands.Cog):
         # TODO: docstring.
 
         # Gather necessary data from the payload.
-        orgEvent, member, message, memeberRole, emoji = data
+        orgEvent, member, message, memeberRole, collabRole, emoji = data
 
         # Check if event has passed.
         currentTime = datetime.utcnow()
@@ -235,7 +235,7 @@ class EventSignupHandler(commands.Cog):
         # TODO: Doctring...
 
         # Gather necessary data from the payload.
-        orgEvent, member, message, memberRole, emoji = data
+        orgEvent, member, message, memberRole, collabRole, emoji = data
 
         # Check if deadline has passed.
         currentTime = datetime.utcnow()
@@ -253,25 +253,31 @@ class EventSignupHandler(commands.Cog):
         # TODO: Docstring...
 
         # Gather necessary data from the payload.
-        orgEvent, member, message, memberRole, emoji = data
+        orgEvent, member, message, memberRole, collabRole, emoji = data
+
+        if orgEvent.eventType == event.EventType.daymar:
+            daymar = True
+        else:
+            daymar = False
 
         # Check if user has membership.
         if memberRole not in member.roles:
-            await member.send(
-                'Sorry, this event is for members only. '
-                'You do not have the clearance to participate or spectate '
-                'this event.',
-                delete_after=60.0
-            )
-            await message.remove_reaction(emoji, member)
-            return True
+            if not daymar or (collabRole not in member.roles):
+                await member.send(
+                    'Sorry, this event is for members only. '
+                    'You do not have the clearance to participate or spectate '
+                    'this event.',
+                    delete_after=60.0
+                )
+                await message.remove_reaction(emoji, member)
+                return True
         return False
 
     async def userAlreadyHasRole(self, data):
         # TODO: docstring.
 
         # Gather necessary data from payload.
-        orgEvent, member, message, memberRole, emoji = data
+        orgEvent, member, message, memberRole, collabRole, emoji = data
 
         # Check if user already has the role.
         person = orgEvent.getParticipant(member.id)
@@ -313,10 +319,11 @@ class EventSignupHandler(commands.Cog):
         guild = message.guild
         member = guild.get_member(payload.user_id)
         memberRole = guild.get_role(self.client.config.memberRoleId)
+        collabRole = guild.get_role(self.client.config.collaboratorRoleId)
         emoji = payload.emoji.name
 
         # Return tuple with the needed data.
-        return orgEvent, member, message, memberRole, emoji
+        return orgEvent, member, message, memberRole, collabRole, emoji
 
     def getEvent(self, id):
         for orgEvent in self.client.orgEvents.events:

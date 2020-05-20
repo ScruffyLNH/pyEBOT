@@ -88,6 +88,8 @@ class Constants:
 
     # Valid emoji reactions.
     REACTION_EMOJIS = {
-        'participant': '✅',
-        'spectator': '💬'
+        'participate': '✅',
+        'cancel': '❌',
+        'spectate': '💬',
+        'help': '❔'
     }

@@ -20,6 +20,7 @@ class EventSignupHandler(commands.Cog):
                     self.handleSignup(payload)
                 )
 
+    """
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
         if payload.channel_id == self.client.config.signupChannelId:
@@ -27,23 +28,52 @@ class EventSignupHandler(commands.Cog):
                 self.client.loop.create_task(
                     self.handleCancellation(payload)
                 )
+    """
 
     async def handleSignup(self, payload):  # TODO: generalize method to handle more emojis and roles.
 
-        if payload.emoji.name == Constants.REACTION_EMOJIS['participant']:
+        if payload.emoji.name == Constants.REACTION_EMOJIS['participate']:
             await self.handleParticipationRequest(payload)
 
-        if payload.emoji.name == Constants.REACTION_EMOJIS['spectator']:
+        if payload.emoji.name == Constants.REACTION_EMOJIS['spectate']:
             await self.handleSpectatorRequest()  # TODO: Make handleSpectatorRequest method.
 
+        if payload.emoji.name == Constants.REACTION_EMOJIS['cancel']:
+            await self.handleCancellation(payload)
+
+        if payload.emoji.name == Constants.REACTION_EMOJIS['help']:
+            await self.handleHelpRequest(payload)
         # If private event check if user is member.
         # Instanciate user and add to client.orgEvents.
         # Update embed.
         # Grant user roles if the event has a private channel.
         # Mention user in event channel: "@examplePerson Welcome to the event!"
 
+    async def handleHelpRequest(self, payload):
+        data = await self.gatherPayloadData(payload)
+        member = data[1]
+        message = data[2]
+        emoji = data[5]
+
+        # No action should be taken if the bot made the reaction.
+        if member.bot:
+            return
+
+        # Remove the reaction.
+        await message.remove_reaction(emoji, member)
+
+        await member.send(
+            'Reaction emoji description:\n\n'
+            ':white_check_mark: Use this emoji to sign up for events.\n'
+            ':x: Use this emoji to cancel signup. You will loose your '
+            'position in the queue if participant spots are limited.\n'
+            ':grey_question: Use this emoji to get description of available '
+            'emojis'
+        )
+
     async def handleCancellation(self, payload):  # TODO: generalize method to handle more emojis and roles.
 
+        """
         messageId = payload.message_id
         # Check which event was reacted to
         orgEvent = self.getEvent(messageId)
@@ -55,6 +85,18 @@ class EventSignupHandler(commands.Cog):
         guild = message.guild
         # Get the user who reacted
         member = guild.get_member(payload.user_id)
+        """
+
+        data = await self.gatherPayloadData(payload)
+        orgEvent, member, message, memeberRole, collabRole, emoji = data
+        guild = message.guild
+
+        # No action should be taken if the bot made the reaction.
+        if member.bot:
+            return
+
+        # Remove reaction
+        await message.remove_reaction(emoji, member)
 
         person = orgEvent.getParticipant(member.id)
         if person is not None:
@@ -103,6 +145,11 @@ class EventSignupHandler(commands.Cog):
         # No action should be taken if the bot made the reaction.
         if member.bot:
             return
+
+        # Remove reaction
+        message = data[2]
+        emoji = data[5]
+        await message.remove_reaction(emoji, member)
 
         # Check that event was found in the internal record.
         if not orgEvent:
@@ -227,7 +274,6 @@ class EventSignupHandler(commands.Cog):
                 'Sorry, you\'d need a time machine to join this event.',
                 delete_after=60.0
                 )
-            await message.remove_reaction(emoji, member)
             return True
         return False
 
@@ -245,7 +291,6 @@ class EventSignupHandler(commands.Cog):
                     'Sorry, signup deadline has passed.',
                     delete_after=60.0
                 )
-                await message.remove_reaction(emoji, member)
                 return True
         return False
 
@@ -269,7 +314,6 @@ class EventSignupHandler(commands.Cog):
                     'this event.',
                     delete_after=60.0
                 )
-                await message.remove_reaction(emoji, member)
                 return True
         return False
 
@@ -288,8 +332,7 @@ class EventSignupHandler(commands.Cog):
                     'registered user.'
                 )
                 await member.send(
-                    'Hmm, you seem to already be registered for the event.'
-                    ' Strange. :shrug:',
+                    'You are already signed up.',
                     delete_after=60.0
                 )
                 return True

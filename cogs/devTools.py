@@ -149,6 +149,28 @@ class DevTools(commands.Cog):
         msg = await ctx.channel.fetch_message(messageId)
         await msg.edit(content=newContent)
 
+    @commands.command()
+    async def removeReaction(self, ctx, memberId, messageId, reaction):
+
+        memberId = int(memberId)
+        messageId = int(messageId)
+
+        guild = self.client.get_guild(self.client.config.guildId)
+        member = guild.get_member(memberId)
+        channel = guild.get_channel(self.client.config.signupChannelId)
+        msg = await channel.fetch_message(messageId)
+        await msg.remove_reaction(reaction, member)
+
+    @commands.command()
+    async def addReaction(self, ctx, messageId, reaction):
+
+        messageId = int(messageId)
+
+        guild = self.client.get_guild(self.client.config.guildId)
+        channel = guild.get_channel(self.client.config.signupChannelId)
+        msg = await channel.fetch_message(messageId)
+        await msg.add_reaction(reaction)
+
     # Command check for entire cog.
     def cog_check(self, ctx):
         """Check that the user of commands in this cog is the admin.

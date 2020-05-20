@@ -448,7 +448,9 @@ class EventCog(commands.Cog):
         )
 
         # Add registration emoji.
-        await msg.add_reaction('✅')
+        await msg.add_reaction(Constants.REACTION_EMOJIS['participate'])
+        await msg.add_reaction(Constants.REACTION_EMOJIS['cancel'])
+        await msg.add_reaction(Constants.REACTION_EMOJIS['help'])
 
         # Set the id of the event to the message id in discord.
         orgEvent.id = msg.id

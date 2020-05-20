@@ -252,9 +252,9 @@ class EventSignupHandler(commands.Cog):
                 # TODO: Link to command more robustly
                 await member.send(
                     'In order for Daymar organizers to invite you to their '
-                    'server they need to know your in game name (RSI handle). '
-                    'Please specify your RSI handle by using the '
-                    '!eb.set_rsi_handle command.\n'
+                    'server they need to know your in game name (RSI handle).'
+                    '\nPlease specify your RSI handle by using the '
+                    '**!eb.set_rsi_handle** command.\n'
                     'For detailed help with this command type '
                     '!eb.help set_rsi_handle'
 

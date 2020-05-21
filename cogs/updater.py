@@ -31,16 +31,55 @@ class Updater(commands.Cog):
         self.updateChecking.cancel()
 
     # Methods
-    def checkForChanges(self):
-        """Checks for differences between last event update and
-        the clients events
+    async def clearEvent(self, orgEvent):
 
-        Returns the event for which the change took place,
-        Ignores changes to the header message stating the
-        time until event as that is handled by another loop.
-        """
+        guild = self.client.get_guild(self.client.config.guildId)
 
-        pass
+        eventCh = self.client.get_channel(
+            self.client.config.signupChannelId
+        )
+        # archiveCh = guild.get_channel(self.client.config.archiveChannelId)
+
+        # Delete roles and channels if they exist.
+        for role in orgEvent.roles.values():
+            dRole = guild.get_role(role.id)
+            await dRole.delete()
+
+        # Delete every channel in category, then the category chnl itself.
+        if orgEvent.channels is not None:
+            categoryChannel = guild.get_channel(
+                orgEvent.channels['category'].id
+            )
+            for channel in categoryChannel.channels:
+                await channel.delete()
+
+            await categoryChannel.delete()
+
+        # Delte event embed from event channel.
+        msg = await eventCh.fetch_message(orgEvent.id)
+        await msg.delete()
+
+    async def sendToArchive(self, orgEvent):
+
+        guild = self.client.get_guild(self.client.config.guildId)
+        archiveCh = guild.get_channel(self.client.config.archiveChannelId)
+
+        # DO NOT SEND PRIVATE EVENTS TO ARCHIVE.
+        # TODO: This will need to change at some point.
+        if orgEvent.data['Members Only'].upper() == 'YES':
+            pass
+        else:
+            user = self.client.get_user(orgEvent.organizer.id)
+            embed = evnt.makeEmbed(True, user, includeRollCall=False)
+            await archiveCh.send(embed=embed)
+
+    def clearEventData(self, orgEvent):
+        # Remove event from event list if found.
+        self.client.orgEvents.events.remove(orgEvent)
+
+        # Save data
+        eventData = self.client.orgEvents.json(indent=2)
+        saveData(Constants.EVENT_DATA_FILENAME, eventData)
 
     async def updateEmbed(self, event):
 
@@ -88,56 +127,15 @@ class Updater(commands.Cog):
         )
 
         if event is not None:
-            guild = self.client.get_guild(self.client.config.guildId)
 
-            eventCh = self.client.get_channel(
-                self.client.config.signupChannelId
-            )
-            archiveCh = guild.get_channel(self.client.config.archiveChannelId)
+            # Clear event from discord.
+            await self.clearEvent(event)
 
-            # Delete roles and channels if they exist.
-            for role in event.roles.values():
-                # Get discord roles associated with event.
-                dRole = guild.get_role(role.id)
-                await dRole.delete()
+            # Send embed to archive if event is not private.
+            await self.sendToArchive(event)
 
-            if event.channels is not None:
-                categoryChannel = guild.get_channel(
-                    event.channels['category'].id
-                )
-                for channel in categoryChannel.channels:
-                    await channel.delete()
-
-                await categoryChannel.delete()
-
-            """
-            # TODO: Get all the channels in the event category and delete those.
-            for channel in event.channels.values():
-                # Get discord channels associated with event.
-                dChannel = guild.get_channel(channel.id)
-                await dChannel.delete()
-            """
-
-            # Delte event embed from event channel.
-            msg = await eventCh.fetch_message(event.id)
-            await msg.delete()
-
-            # Send event embed to archive channel.
-            # DO NOT SEND PRIVATE EVENTS TO ARCHIVE.
-            # TODO: This will need to change at some point.
-            if event.data['Members Only'].upper() == 'YES':
-                pass
-            else:
-                user = self.client.get_user(event.organizer.id)
-                embed = event.makeEmbed(True, user, includeRollCall=False)
-                await archiveCh.send(embed=embed)
-
-            # Remove event from event list if found.
-            self.client.orgEvents.events.remove(event)
-
-            # Save data
-            eventData = self.client.orgEvents.json(indent=2)
-            saveData(Constants.EVENT_DATA_FILENAME, eventData)
+            # Clear internal event record.
+            self.clearEventData(event)
 
     @tasks.loop(seconds=31)
     async def updateChecking(self):

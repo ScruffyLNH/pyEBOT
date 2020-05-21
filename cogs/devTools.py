@@ -62,6 +62,20 @@ class DevTools(commands.Cog):
         await sendMessagePackets(ctx, channels)
 
     @commands.command()
+    async def getUsers(self, ctx):
+        """Get information about guild members.
+        """
+
+        members = ''
+        for i, member in enumerate(ctx.guild.members):
+            members += f'\n {member.name}'
+            members += f'\n\tnick: {member.nick},'
+            members += f'\n\tdisplay name: {member.display_name},'
+            members += f'\n\tid: {member.id}\n'
+
+        await sendMessagePackets(ctx, members)
+
+    @commands.command()
     async def getRoles(self, ctx):
         """Get information on all roles in guild.
         """
@@ -105,33 +119,15 @@ class DevTools(commands.Cog):
 
         await ctx.send('Now clearing all events', delete_after=3.0)
 
-        guild = self.client.get_guild(self.client.config.guildId)
-        signupChannel = ctx.channel
-        categoryChannels = []
+        cog = self.client.get_cog('Updater')
 
         # Delete all roles and channels.
         for orgEvent in self.client.orgEvents.events:
-            for role in orgEvent.roles.values():
-                dRole = guild.get_role(role.id)
-                await dRole.delete()
-            for channel in orgEvent.channels.values():
-                dChannel = guild.get_channel(channel.id)
-                # Wait to delete category channels until all channels within
-                # the category channels are gone.
-                if dChannel.type is not discord.ChannelType.category:
-                    await dChannel.delete()
-                else:
-                    categoryChannels.append(dChannel)
-        # Delete category channels now that they are cleared.
-        for dChannel in categoryChannels:
-            await dChannel.delete()
+            # Clear discord roles, channels and event embed.
+            await cog.clearEvent(orgEvent)
 
-        # Delete all embed messages.
-        for orgEvent in self.client.orgEvents.events:
-            msg = await signupChannel.fetch_message(orgEvent.id)
-            await msg.delete()
-
-        await ctx.message.delete()
+            # Clear internal event record.
+            await cog.clearEventData(orgEvent)
 
         await ctx.send(
             'Channels and roles associated with events cleared.',

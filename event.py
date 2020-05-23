@@ -242,7 +242,7 @@ class Event(BaseModel):
             preambleBuffer.append(
                 ':zipper_mouth: '
                 'To view classified information, sign up is required. '
-                'Full description will be disclosed in this events text '
+                'Full description will be disclosed in this events briefing '
                 'channel.'
                 '\n'
             )

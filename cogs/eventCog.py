@@ -331,7 +331,7 @@ class EventCog(commands.Cog):
         # Private events will always have channels.
         if channels:
             if general or deadlineAlerts:
-                textChannelId = self.client.config.discussionChannelId
+                textChannelId = self.client.config.privateAnnouncementChannelId
             else:
                 textChannelId = channels['discussion'].id
             voiceChannelId = channels['mainVoice'].id

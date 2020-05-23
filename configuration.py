@@ -7,6 +7,7 @@ class Configuration(BaseModel):
     mainCategoryChannelId: int = None
     signupChannelId: int = None
     discussionChannelId: int = None
+    privateAnnouncementChannelId: int = None
     archiveChannelId: int = None
     defaultVoiceChannelId: int = None
     adminChannelId: int = None

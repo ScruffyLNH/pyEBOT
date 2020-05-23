@@ -107,6 +107,12 @@ class Daymar(commands.Cog):
                 'without the <>'
             )
             return
+        if len(rsiHandle) < 3:
+            await ctx.send(
+                'RSI handles must be at least 3 characters long. Please enter '
+                'a valid RSI handle.'
+            )
+            return
         if ' ' in rsiHandle:
             await ctx.send(
                 'RSI handles cannot contain spaces. Please enter a valid '

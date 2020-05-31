@@ -46,7 +46,7 @@ class Updater(commands.Cog):
             await dRole.delete()
 
         # Delete every channel in category, then the category chnl itself.
-        if orgEvent.channels is not None:
+        if orgEvent.channels:
             categoryChannel = guild.get_channel(
                 orgEvent.channels['category'].id
             )

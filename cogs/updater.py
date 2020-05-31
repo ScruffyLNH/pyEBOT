@@ -70,7 +70,7 @@ class Updater(commands.Cog):
             pass
         else:
             user = self.client.get_user(orgEvent.organizer.id)
-            embed = evnt.makeEmbed(True, user, includeRollCall=False)
+            embed = orgEvent.makeEmbed(True, user, includeRollCall=False)
             await archiveCh.send(embed=embed)
 
     def clearEventData(self, orgEvent):

@@ -137,13 +137,14 @@ class Daymar(commands.Cog):
         guildMemberData = self.client.guildMembers.json(indent=2)
         utility.saveData(Constants.GUILD_MEMBER_DATA_FILENAME, guildMemberData)
 
-        # TODO: Add to sheet if in daymar event.
+        # Add to sheet if in daymar event, and participant is active.
         orgEvents = self.client.orgEvents.events
         for e in orgEvents:
             if e.eventType == event.EventType.daymar:
-                if e.getParticipant(ctx.author.id) is not None:
-
-                    self.addParticipant(m)
+                p = e.getParticipant(ctx.author.id)
+                if p:
+                    if p.active is True:
+                        self.addParticipant(m)
                 break
 
         await ctx.send(

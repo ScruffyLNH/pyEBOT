@@ -89,6 +89,12 @@ class Daymar(commands.Cog):
         else:
             return False
 
+    def can_add_participants(ctx):
+        return True  # TODO: Make this function.
+
+    def correct_password(ctx):
+        return True  # TODO: Make this function.
+
     @commands.command()
     async def set_rsi_handle(self, ctx, *, rsiHandle=''):
         """Sets the RSI handle of the user invoking the command.
@@ -152,6 +158,9 @@ class Daymar(commands.Cog):
             'You may change your registered RSI handle name at any time by '
             'running this command again.'
         )
+
+#    @commands.command()
+#    @commands.check(can_add_participants)
 
     @commands.command()
     @commands.check(checkId)

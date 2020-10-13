@@ -755,8 +755,12 @@ class EventCog(commands.Cog):
 
         # If event is a daymar event the daymar spreadsheet is cleared.
         if eventInstance.eventType == event.EventType.daymar:
-            cog = self.client.get_cog('Daymar')
-            cog.clearDaymarSheet()
+            try:
+                cog = self.client.get_cog('Daymar')
+                cog.clearDaymarSheet()
+            except Exception:  # TODO: Specify exception.
+                self.client.logger.warning(
+                    'Not able to connect to Spreadsheet')
 
         # Append the event to the clients list of events
         self.client.orgEvents.events.append(registeredEvent)

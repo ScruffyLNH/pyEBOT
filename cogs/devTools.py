@@ -1,5 +1,5 @@
 import discord # noqa
-from utility import sendMessagePackets
+from utility import sendMessagePackets, saveData
 from constants import Constants
 from discord.ext import commands
 
@@ -166,6 +166,51 @@ class DevTools(commands.Cog):
         channel = guild.get_channel(self.client.config.signupChannelId)
         msg = await channel.fetch_message(messageId)
         await msg.add_reaction(reaction)
+
+    @commands.command()
+    async def forceNewMessage(self, ctx, oldId):
+        # TODO: REFACTOR THIS HOTFIX
+
+        # Convert input to int
+        oldId = int(oldId)
+
+        for orgEvent in self.client.orgEvents.events:
+            if orgEvent.id == oldId:
+                myEvent = orgEvent
+                break
+        else:
+            return
+
+        guild = self.client.get_guild(self.client.config.guildId)
+
+        channel = guild.get_channel(self.client.config.signupChannelId)
+
+        # Delete old message if exists.
+        try:
+            oldMsg = await channel.fetch_message(oldId)
+            await oldMsg.delete()
+        except discord.NotFound:
+            pass
+
+        user = self.client.get_user(myEvent.organizer.id)
+
+        vc = guild.get_channel(self.client.config.defaultVoiceChannelId)
+
+        embed = myEvent.makeEmbed(True, user, mainVoiceName=vc.name)
+
+        # Post the new embed.
+        msg = await channel.send(embed=embed)
+        # Register the new event id.
+        myEvent.id = msg.id
+        # Add reactions to the message. #TODO refactor wet code (make a method for adding the reactions in evntCog)
+        await msg.add_reaction(Constants.REACTION_EMOJIS['participate'])
+        await msg.add_reaction(Constants.REACTION_EMOJIS['cancel'])
+        if True in orgEvent.privateIndication.values():
+            await msg.add_reaction(Constants.REACTION_EMOJIS['info'])
+        await msg.add_reaction(Constants.REACTION_EMOJIS['help'])
+
+        eventData = self.client.orgEvents.json(indent=2)
+        saveData(Constants.EVENT_DATA_FILENAME, eventData)
 
     # Command check for entire cog.
     def cog_check(self, ctx):

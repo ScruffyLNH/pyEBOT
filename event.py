@@ -196,14 +196,6 @@ class Event(BaseModel):
     ):
         # TODO: Document this method. **censored TRUE/FALSE**
 
-        # TODO: Add Type: Open event, anyone may join./
-        #                 Closed event, membership required.
-
-        # IF event is private print this somewhere at the start:
-        # This is a private event, and may contain classified information.
-        # to view the classified info, sign up for the event and check the
-        # event channel that will open.
-
         # Override private keys if censored argument is not True
         if censored:
             privateIndication = self.privateIndication

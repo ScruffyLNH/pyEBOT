@@ -91,5 +91,6 @@ class Constants:
         'participate': '✅',
         'cancel': '❌',
         'spectate': '💬',
-        'help': '❔'
+        'help': '❔',
+        'info': 'ℹ️'
     }

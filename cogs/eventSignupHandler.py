@@ -41,6 +41,9 @@ class EventSignupHandler(commands.Cog):
         if payload.emoji.name == Constants.REACTION_EMOJIS['cancel']:
             await self.handleCancellation(payload)
 
+        if payload.emoji.name == Constants.REACTION_EMOJIS['info']:
+            await self.handleInformationRequest(payload)
+
         if payload.emoji.name == Constants.REACTION_EMOJIS['help']:
             await self.handleHelpRequest(payload)
         # If private event check if user is member.
@@ -261,6 +264,44 @@ class EventSignupHandler(commands.Cog):
                 )
                 cog.addParticipant(guildMember)
 
+    async def handleInformationRequest(self, payload):
+
+        data = await self.gatherPayloadData(payload)
+        orgEvent = data[0]
+        member = data[1]
+
+        # No action should be taken if the bot made the reaction.
+        if member.bot:
+            return
+
+        # Remove reaction
+        message = data[2]
+        emoji = data[5]
+        await message.remove_reaction(emoji, member)
+
+        # Check that event was found in the internal record.
+        if not orgEvent:
+            self.client.logger.warning(
+                'Someone tried to access info for an untracked event.'
+            )
+            return
+
+        # If event is private, check if user has proper authorization.
+        if orgEvent.data['Members Only'].upper() == 'YES':
+            # Check that user has member role, handle rejection if not.
+            if await self.noMemberRole(data):
+                return
+
+        # If user has passed all flags send info to user.
+        user = self.client.get_user(orgEvent.organizer.id)
+        embed = orgEvent.makeEmbed(
+            False,
+            user,
+            includeAuthor=False,
+            includePreamble=False)
+
+        await member.send(embed=embed)
+
     async def eventHasPassed(self, data):
         # TODO: docstring.
 
@@ -308,12 +349,19 @@ class EventSignupHandler(commands.Cog):
         # Check if user has membership.
         if memberRole not in member.roles:
             if not daymar or (collabRole not in member.roles):
-                await member.send(
-                    'Sorry, this event is for members only. '
-                    'You do not have the clearance to participate or spectate '
-                    'this event.',
-                    delete_after=60.0
-                )
+                if emoji == Constants.REACTION_EMOJIS['info']:
+                    await member.send(
+                        'Sorry, you do not have the proper permissions to '
+                        'access information on this event.',
+                        delete_after=60.0
+                    )
+                else:
+                    await member.send(
+                        'Sorry, this event is for members only. '
+                        'You do not have the clearance to participate or '
+                        'spectate this event.',
+                        delete_after=60.0
+                    )
                 return True
         return False
 

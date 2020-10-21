@@ -471,5 +471,5 @@ class OrgEvents(BaseModel):
     def getEvent(self, id):
         for event in self.events:
             if event.id == id:
-                return id
+                return event
         return None

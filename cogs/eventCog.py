@@ -450,6 +450,9 @@ class EventCog(commands.Cog):
         # Add registration emoji.
         await msg.add_reaction(Constants.REACTION_EMOJIS['participate'])
         await msg.add_reaction(Constants.REACTION_EMOJIS['cancel'])
+        # Add information emoji if event contains private information.
+        if True in orgEvent.privateIndication.values():
+            await msg.add_reaction(Constants.REACTION_EMOJIS['info'])
         await msg.add_reaction(Constants.REACTION_EMOJIS['help'])
 
         # Set the id of the event to the message id in discord.

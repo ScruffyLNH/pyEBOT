@@ -23,9 +23,11 @@ from discord.ext import commands
 if __name__ == "__main__":
     """Instanciate the discord.py client/bot and load event data if it exists.
     """
-
+    # Generate intents (required as of v1.5)
+    intents = discord.Intents.default()
+    intents.members = True
     # Instanciate the client and set the command prefix.
-    client = commands.Bot(Constants.CMD_PREFIX)  # TODO: Make it possible to change prefix with cmd.
+    client = commands.Bot(Constants.CMD_PREFIX, intents=intents)  # TODO: Make it possible to change prefix with cmd.
 
     # Remove the default help command.
     # client.remove_command('help')

@@ -30,12 +30,15 @@ data = sheet.get_all_records()
 pprint(data)
 """
 # TODO: Do some error handling to prevent crashing if sheet names change.
-spreadSheet = client.open("EVENTS")
+# Get sheetnames and keys from json file.
+with open("gsheetsConfig.json", "r") as f:
+    sheetsConfig = json.load(f)
+    f.close()
+
+spreadSheet = client.open(sheetsConfig['eventSheet'])
 sheet = spreadSheet.worksheet('Discord Parsed Data')
 
-daymarSpreadSheet = client.open_by_key(
-    '1VDhj5Fwoo4auUMBc3bJ8KzVjpCPcCwXnwcVKs9GMRDQ'
-)
+daymarSpreadSheet = client.open_by_key(sheetsConfig['daymarSpreadSheetKey'])
 daymarSheet = daymarSpreadSheet.worksheet('SECURITY')
 daymarOverviewSheet = daymarSpreadSheet.worksheet('ALL')
 

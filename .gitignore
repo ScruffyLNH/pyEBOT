@@ -25,6 +25,7 @@ eventData.json
 messageData.json
 config.json
 members.json
+gsheetsConfig.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

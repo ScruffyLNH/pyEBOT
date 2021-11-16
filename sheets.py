@@ -1,6 +1,7 @@
 import gspread  # Module needed for google sheets.
 import csv
 import string
+import json
 from oauth2client.service_account import ServiceAccountCredentials
 # from pprint import pprint  # Print pretty messages.
 
@@ -148,7 +149,31 @@ def exportCsv(fileName):
 
 # This must run periodically to avoid loosing authentication. Timeout is 1hr.
 def refreshAuth():
-    client.login()
+
+    global client
+    global spreadSheet
+    global sheet
+    global daymarSpreadSheet
+    global daymarSheet
+    global daymarOverviewSheet
+
+    client = gspread.authorize(creds)
+
+    # TODO Make a gsheets config file for sheet names and keys and track
+    # sheets.py
+    with open("gsheetsConfig.json", "r") as f:
+        sheetsConfig = json.load(f)
+        f.close()
+
+    spreadSheet = client.open(sheetsConfig['eventSheet'])
+    sheet = spreadSheet.worksheet('Discord Parsed Data')
+
+    daymarSpreadSheet = client.open_by_key(
+        sheetsConfig['daymarSpreadSheetKey']
+    )
+    daymarSheet = daymarSpreadSheet.worksheet('SECURITY')
+    daymarOverviewSheet = daymarSpreadSheet.worksheet('ALL')
+
 
 # TODO: Encapsulate this code within a class to make it compatible with sphinx
 # documentation.

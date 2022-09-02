@@ -581,6 +581,9 @@ class EventCog(commands.Cog):
 
         # Get all messages in the event-posters resource channel.
         messages = await channel.history(limit=30).flatten()
+        
+        # Remove messages with empty attachments list because of new message intent.
+        messages = [m for m in messages if m.attachments != []]
         # Get url from message attachment.
         urls = [m.attachments[0].url for m in messages]
 
